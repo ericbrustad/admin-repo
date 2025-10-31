@@ -1,10 +1,15 @@
-// CODEX NOTE: Settings-page "Saved Games" dropdown.
-// Lists ALL games (draft + published) and includes a "Default (reset)" option.
-import React, { useEffect, useState } from 'react';
+// [Codex note] Single "Saved Games" dropdown with instant load & URL sync.
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const S = {
-  label: { display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 },
+  label: {
+    display: 'block',
+    fontSize: 12,
+    fontWeight: 600,
+    marginBottom: 6,
+    color: '#111827',
+  },
   help: { fontSize: 12, opacity: 0.7, marginTop: 6 },
   select: {
     width: '100%',
@@ -14,88 +19,114 @@ const S = {
     padding: '10px 12px',
     background: 'transparent',
     outline: 'none',
+    color: '#111827',
+    opacity: 1,
+    filter: 'none',
   },
 };
-
-function labelFor(g) {
-  const suffix =
-    g.channel === 'published' ? ' (published)' : g.channel === 'draft' ? ' (draft)' : '';
-  return `${g.title}${suffix}`;
-}
 
 export default function SavedGamesSelect() {
   const router = useRouter();
   const [items, setItems] = useState([]);
-  const [isLoading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
+  // Load unified list
   useEffect(() => {
     let cancelled = false;
-
-    const load = async () => {
+    (async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/games/list?includeDrafts=1');
-        if (!response.ok) throw new Error(`status ${response.status}`);
-        const json = await response.json();
-        if (!cancelled) {
-          const list = Array.isArray(json?.items)
-            ? json.items
-            : Array.isArray(json?.games)
-              ? json.games
-              : [];
-          setItems(list);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.warn('Failed to load saved games list', error);
-          setItems([]);
-        }
+        const r = await fetch('/api/games/all');
+        const j = await r.json();
+        if (!cancelled && j?.ok && Array.isArray(j.games)) setItems(j.games);
+      } catch {
+        if (!cancelled) setItems([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
-    };
-
-    load();
-    return () => {
-      cancelled = true;
-    };
+    })();
+    return () => { cancelled = true; };
   }, []);
 
-  function openGame(slug, channel) {
-    const query = { ...router.query, game: slug, channel };
-    router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
+  const grouped = useMemo(() => {
+    const g = { published: [], draft: [], other: [] };
+    for (const it of items) (g[it.channel] || g.other).push(it);
+    return g;
+  }, [items]);
+
+  async function selectGame(slug, channel) {
+    // Prefetch full payload for instant UI update
+    try {
+      const r = await fetch(`/api/games/one?slug=${encodeURIComponent(slug)}&channel=${encodeURIComponent(channel)}`);
+      const j = await r.json();
+      if (j?.ok && j.game) {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('admin:lastSelection', JSON.stringify(j.game));
+        }
+        // Fire a custom event some parts of the UI can listen to for immediate hydration
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('AdminGameSelected', { detail: j.game }));
+        }
+      }
+    } catch {}
+
+    // Update URL (no shallow to force all data-effects to re-run if they rely on router)
+    const q = { ...router.query, game: slug, channel };
+    delete q.mission; // avoid stale mission when switching
+    router.push({ pathname: router.pathname, query: q }, undefined, { shallow: false });
   }
 
   return (
-    <div>
+    <div data-codex="SavedGamesSelect">
       <label style={S.label}>Saved Games</label>
       <select
         style={S.select}
         defaultValue=""
+        disabled={loading || items.length === 0}
         onChange={(e) => {
           const val = e.target.value;
           if (!val) return;
-          if (val === '__default__') {
-            openGame('default', 'draft');
-            return;
-          }
+          if (val === '__default__') return selectGame('default', 'draft');
           const [slug, channel] = val.split('::');
-          openGame(slug, channel || 'draft');
+          selectGame(slug, channel || 'draft');
         }}
       >
-        <option value="" disabled>
-          {isLoading ? 'Loading…' : 'Select a game'}
-        </option>
+        <option value="" disabled>{loading ? 'Loading…' : 'Select a game'}</option>
         <option value="__default__">Default (reset)</option>
-        {items.map((g) => (
-          <option key={`${g.slug}-${g.channel}`} value={`${g.slug}::${g.channel}`}>
-            {labelFor(g)}
-          </option>
-        ))}
+
+        {grouped.published.length > 0 && (
+          <optgroup label="Published">
+            {grouped.published.map(g => (
+              <option key={`${g.slug}:published`} value={`${g.slug}::published`}>
+                {(g.title || g.slug)} (published)
+              </option>
+            ))}
+          </optgroup>
+        )}
+
+        {grouped.draft.length > 0 && (
+          <optgroup label="Drafts">
+            {grouped.draft.map(g => (
+              <option key={`${g.slug}:draft`} value={`${g.slug}::draft`}>
+                {(g.title || g.slug)} (draft)
+              </option>
+            ))}
+          </optgroup>
+        )}
+
+        {grouped.other.length > 0 && (
+          <optgroup label="Other">
+            {grouped.other.map(g => (
+              <option key={`${g.slug}:other`} value={`${g.slug}::other`}>
+                {(g.title || g.slug)} (other)
+              </option>
+            ))}
+          </optgroup>
+        )}
       </select>
+
       <div style={S.help}>
-        Switch to another saved escape ride. Use the “+ New Game” control in the top navigation to add a
-        title.
+        Switch to another saved escape ride. Use the “+ New Game” control in the top navigation to add a title.
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import GamesDropdown from '../components/GamesDropdown';
+import SavedGamesSelect from '../components/SavedGamesSelect';
 import HeaderBar from '../components/HeaderBar';
 import TestLauncher from '../components/TestLauncher';
 import HomeDefaultButtons from '../components/HomeDefaultButtons';
@@ -7,7 +7,6 @@ import AnswerResponseEditor from '../components/AnswerResponseEditor';
 import InlineMissionResponses from '../components/InlineMissionResponses';
 import AssignedMediaTab from '../components/AssignedMediaTab';
 import SafeBoundary from '../components/SafeBoundary';
-import SavedGamesPicker from '../components/Settings/SavedGamesPicker';
 import ProjectFlags from '../components/Settings/ProjectFlags.jsx';
 import GlobalLocationSelector from '../components/Settings/GlobalLocationSelector.jsx';
 import HideLegacyStatusToggles from '../components/HideLegacyStatusToggles';
@@ -22,8 +21,9 @@ import {
 import { GAME_ENABLED } from '../lib/game-switch';
 import { createNewGame } from '../lib/games/createNewGame.js';
 import { nextMissionId, nextDeviceId } from '../lib/ids.js';
-import { updateAllPinsInSnapshot, deriveInitialGeo } from '../lib/geo/updateAllPins.js';
+import { updateAllPinsInSnapshot, deriveInitialGeo, collectPinsFromSnapshot } from '../lib/geo/updateAllPins.js';
 import { getDefaultGeo } from '../lib/geo/defaultGeo.js';
+import { MEDIA_BUCKET, mediaPoolPrefix } from '../lib/mediaPool';
 
 /* ───────────────────────── Helpers ───────────────────────── */
 async function fetchJsonSafe(url, fallback) {
@@ -175,64 +175,49 @@ const FOLDER_TO_TYPE = new Map([
 ]);
 
 /** Merge inventory across dirs so uploads show up everywhere */
-async function listInventory(dirs = ['mediapool']) {
+async function listInventory(dirs = ['mediapool']) { // dirs kept for signature compatibility
   const seen = new Set();
   const out = [];
-  const baseDirs = Array.isArray(dirs) && dirs.length ? dirs : ['mediapool'];
-  const targets = [];
-
-  const normalize = (value) => String(value || '')
-    .trim()
-    .replace(/^\/+|\/+$/g, '');
-
-  const ensureMediapool = (value) => {
-    const normalized = normalize(value);
-    if (!normalized) return '';
-    if (normalized.toLowerCase().startsWith('mediapool')) return normalized;
-    return `mediapool/${normalized}`;
-  };
-
-  const pushTarget = (dir) => {
-    const normalized = normalize(dir);
-    if (!normalized) return;
-    if (/^(draft|public)\//i.test(normalized)) {
-      const key = normalized
-        .split('/')
-        .map((segment) => segment.trim())
-        .filter(Boolean)
-        .join('/')
-        .toLowerCase();
-      if (!targets.includes(key)) targets.push(key);
-      return;
-    }
-    const mediapoolDir = ensureMediapool(normalized);
-    ['public', 'draft'].forEach((channel) => {
-      if (!mediapoolDir) return;
-      const key = `${channel}/${mediapoolDir}`
-        .split('/')
-        .map((segment) => segment.trim())
-        .filter(Boolean)
-        .join('/')
-        .toLowerCase();
-      if (!targets.includes(key)) targets.push(key);
-    });
-  };
-
-  baseDirs.forEach(pushTarget);
+  void dirs;
+  const channels = ['draft', 'published'];
 
   await Promise.all(
-    targets.map(async (dir) => {
+    channels.map(async (channel) => {
       try {
-        const r = await fetch(`/api/list-media?dir=${encodeURIComponent(dir)}`, { credentials: 'include', cache: 'no-store' });
-        const j = await r.json();
-        (j?.items || []).forEach((it = {}) => {
-          const key = it.path || it.url || it.id || '';
-          if (!key) return;
-          if (seen.has(key)) return;
-          seen.add(key);
-          out.push(it);
+        const params = new URLSearchParams();
+        params.set('channel', channel);
+        const response = await fetch(`/api/media/list?${params.toString()}`, {
+          credentials: 'include',
+          cache: 'no-store',
         });
-      } catch {}
+        const payload = await response.json().catch(() => ({}));
+        if (payload?.ok === false) return;
+        const entries = Array.isArray(payload?.items)
+          ? payload.items
+          : Array.isArray(payload?.files)
+            ? payload.files
+            : [];
+
+        entries.forEach((entry = {}) => {
+          const key = entry.path || entry.url || entry.id || '';
+          if (!key || seen.has(key)) return;
+          seen.add(key);
+          const url = entry.url || entry.publicUrl || '';
+          const path = entry.path || key;
+          const type = entry.type || entry.kind || classifyByExt(url || path || entry.name || '');
+          out.push({
+            ...entry,
+            channel: entry.channel || channel,
+            path,
+            url: url || path,
+            thumbUrl: entry.thumbUrl || url || path,
+            type,
+            kind: type,
+          });
+        });
+      } catch (error) {
+        console.warn('listInventory: unable to load media', error);
+      }
     })
   );
 
@@ -345,39 +330,6 @@ async function deleteMediaEntry(entry) {
     } catch {}
   }
   return false;
-}
-
-async function fileToBase64(file) {
-  if (!file) return '';
-  if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result;
-        if (typeof result === 'string') {
-          const base64 = result.split(',')[1] || '';
-          resolve(base64);
-        } else {
-          reject(new Error('Unable to read file contents'));
-        }
-      };
-      reader.onerror = () => reject(reader.error || new Error('Unable to read file contents'));
-      reader.readAsDataURL(file);
-    });
-  }
-  const arrayBuffer = await file.arrayBuffer();
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(arrayBuffer).toString('base64');
-  }
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode.apply(null, chunk);
-  }
-  if (typeof btoa === 'function') return btoa(binary);
-  throw new Error('Base64 conversion is not supported in this environment');
 }
 
 /* ───────────────────────── Defaults ───────────────────────── */
@@ -3087,19 +3039,23 @@ export default function Admin() {
         const snapshot = await getSnapshotFor(slug);
         if (!snapshot) throw new Error('Snapshot unavailable');
         const mutated = updateAllPinsInSnapshot(cloneSnapshot(snapshot), lat, lng);
-        const response = await fetch('/api/games/save-full', {
+        const pinsPayload = collectPinsFromSnapshot(mutated);
+        const configPayload = mutated?.data?.config || {};
+        const response = await fetch('/api/pins/bulk-save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
             slug,
             channel: headerStatus,
-            snapshot: mutated,
+            pins: pinsPayload,
+            config: configPayload,
           }),
         });
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || 'Save failed');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result?.ok === false) {
+          const message = result?.error || `Pins save failed (${response.status})`;
+          throw new Error(message);
         }
         if (mutated?.data?.config) {
           setConfig(mutated.data.config);
@@ -3150,20 +3106,37 @@ export default function Admin() {
         }
 
         if (!handled) {
-          const endpoint = publish ? '/api/games/save-and-publish' : '/api/games/save-full';
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              slug,
-              channel: publish ? 'published' : headerStatus,
-              snapshot,
-            }),
-          });
-          if (!response.ok) {
-            const text = await response.text();
-            throw new Error(text || 'Save request failed');
+          const configPayload = snapshot?.data?.config || {};
+          const suitePayload = snapshot?.data?.suite || null;
+          const titlePayload = snapshot?.meta?.title || configPayload?.game?.title || slug;
+          const normalizedDraftChannel = headerStatus === 'published' ? 'published' : 'draft';
+
+          const saveToChannel = async (targetChannel) => {
+            const response = await fetch('/api/games/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                slug,
+                channel: targetChannel,
+                title: titlePayload,
+                config: configPayload,
+                suite: suitePayload,
+                snapshot,
+              }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || payload?.ok === false) {
+              const message = payload?.error || `Save request failed (${response.status})`;
+              throw new Error(message);
+            }
+          };
+
+          if (publish) {
+            await saveToChannel('draft');
+            await saveToChannel('published');
+          } else {
+            await saveToChannel(publish ? 'published' : normalizedDraftChannel);
           }
         }
 
@@ -3952,12 +3925,12 @@ export default function Admin() {
       resolvedFolder = `mediapool/${normalizedFolder}`;
     }
 
-    const BUCKET = process.env.NEXT_PUBLIC_SUPABASE_MEDIA_BUCKET || 'media';
-    const prefix = editChannel === 'published' ? 'public' : 'draft';
-    const folder = `${prefix}/${resolvedFolder}`.replace(/\/+/g, '/');
-
     const uniqueName = `${Date.now()}-${safeName}`;
-    const destinationLabel = `${prefix.toUpperCase()} @ ${BUCKET}/${folder}`;
+    const channel = editChannel === 'published' ? 'published' : 'draft';
+    const poolPrefix = mediaPoolPrefix(channel);
+    const relativeFolder = resolvedFolder.replace(/^mediapool\/?/i, '');
+    const remoteName = relativeFolder ? `${relativeFolder}/${uniqueName}` : uniqueName;
+    const destinationLabel = `${channel.toUpperCase()} @ ${MEDIA_BUCKET}/${poolPrefix}${relativeFolder}`.replace(/\/+/g, '/');
     const overWarning = (file.size || 0) > MEDIA_WARNING_BYTES;
     if (overWarning) {
       const sizeMb = Math.max(0.01, (file.size || 0) / (1024 * 1024));
@@ -3965,56 +3938,25 @@ export default function Admin() {
     } else {
       setUploadStatus(`Uploading ${safeName} to ${destinationLabel}…`);
     }
-    const base64 = await fileToBase64(file);
-    const body = {
-      fileName: uniqueName,
-      folder: folder,
-      sizeBytes: file.size || 0,
-      contentBase64: base64,
-      remoteUrl: options.remoteUrl || '',
-    };
-    const res = await fetch('/api/upload', {
+    const formData = new FormData();
+    formData.append('file', file, safeName);
+    const res = await fetch(`/api/media/upload?channel=${encodeURIComponent(channel)}&filename=${encodeURIComponent(remoteName)}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify(body),
+      body: formData,
     });
-    const j = await res.json().catch(() => ({}));
-    if (res.ok) {
-      let message = `✅ Registered ${safeName} in ${destinationLabel}`;
-      if (j?.manifestFallback && j?.manifestPath) {
-        message += ` (manifest fallback: ${j.manifestPath})`;
-      } else if (j?.manifestPath) {
-        message += ` (manifest: ${j.manifestPath})`;
-      }
-      setUploadStatus(message);
-    } else {
-      setUploadStatus(`❌ ${j?.error || 'upload failed'}`);
+    const payload = await res.json().catch(() => ({}));
+    if (res.ok && payload?.ok) {
+      const key = payload?.key || `${poolPrefix}${remoteName}`;
+      const publicUrl = payload?.publicUrl || '';
+      setUploadStatus(`✅ Uploaded ${safeName} to ${MEDIA_BUCKET}/${key}`);
+      return publicUrl;
     }
-    return res.ok ? (j?.item?.url || '') : '';
+    const errorMessage = payload?.error || `upload failed (${res.status})`;
+    setUploadStatus(`❌ ${errorMessage}`);
+    return '';
   }
 
-  const selectGameOptions = useMemo(() => {
-    const entries = new Map();
-    entries.set('default', `${STARFIELD_DEFAULTS.title} (default)`);
-    const bySlug = gamesIndex?.bySlug || {};
-    Object.entries(bySlug).forEach(([slug, channels]) => {
-      if (!slug || slug === 'default') return;
-      const source = channels?.draft || channels?.published || {};
-      const title = source.title || slug;
-      const mode = source.mode;
-      entries.set(slug, mode ? `${title} — ${mode}` : title);
-    });
-    if (entries.size === 1 && Array.isArray(games)) {
-      games.forEach((game) => {
-        if (!game || !game.slug || game.slug === 'default') return;
-        if (entries.has(game.slug)) return;
-        const label = `${game.title || game.slug}${game.mode ? ` — ${game.mode}` : ''}`;
-        entries.set(game.slug, label);
-      });
-    }
-    return Array.from(entries, ([value, label]) => ({ value, label }));
-  }, [gamesIndex, games]);
   const settingsMenuGames = useMemo(() => {
     const entries = [
       {
@@ -4087,18 +4029,6 @@ export default function Admin() {
     return entries;
   }, [gamesIndex, games]);
 
-  const savedGamesChannel = useMemo(() => {
-    const slug = activeSlug || 'default';
-    const desired = slug === 'default' ? 'draft' : headerStatus;
-    const match = savedGamesList.some(
-      (entry) => entry.slug === slug && (entry.channel || 'draft') === desired,
-    );
-    if (match) return desired;
-    return 'draft';
-  }, [activeSlug, headerStatus, savedGamesList]);
-
-  const savedGamesValue = `${activeSlug || 'default'}:${savedGamesChannel}`;
-
   useEffect(() => {
     if (tab !== 'settings' && confirmDeleteOpen) {
       setConfirmDeleteOpen(false);
@@ -4118,6 +4048,54 @@ export default function Admin() {
     },
     [setActiveSlug, setEditChannel, setTab, setStatus],
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const handle = (event) => {
+      const payload = event?.detail && typeof event.detail === 'object' ? event.detail : event;
+      if (!payload) return;
+      const slug = String(payload.slug || 'default');
+      const incoming = String(payload.channel || '').toLowerCase();
+      const channelLabel = incoming === 'published' ? 'published' : incoming === 'other' ? 'other' : 'draft';
+      const normalized = slug === 'default'
+        ? 'draft'
+        : channelLabel === 'published'
+        ? 'published'
+        : 'draft';
+      const match = savedGamesList.find(
+        (entry) => entry.slug === slug && (entry.channel || 'draft') === channelLabel,
+      );
+      const baseTitle = match?.title || payload.title || match?.slug || slug;
+      const suffix = channelLabel === 'published' ? ' (published)' : channelLabel === 'other' ? ' (other)' : ' (draft)';
+      const label = `${baseTitle}${suffix}`;
+      const currentSlug = activeSlug || 'default';
+      const currentChannel = editChannel === 'published' ? 'published' : 'draft';
+      const alreadySelected = slug === currentSlug
+        && (channelLabel === currentChannel || (channelLabel === 'other' && currentChannel === 'draft'));
+      setConfirmDeleteOpen(false);
+      applyOpenGameFromMenu(slug, channelLabel, label);
+      setActiveTagsToOnly(slug);
+      if (!alreadySelected) {
+        logConversation('You', `Switched to ${label}`);
+        logConversation('GPT', 'Tag filters updated to focus on the selected game.');
+      }
+    };
+
+    window.addEventListener('AdminGameSelected', handle);
+    try {
+      const cached = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin:lastSelection') : null;
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          handle({ detail: parsed });
+        }
+      }
+    } catch {}
+
+    return () => {
+      window.removeEventListener('AdminGameSelected', handle);
+    };
+  }, [activeSlug, editChannel, applyOpenGameFromMenu, logConversation, savedGamesList, setActiveTagsToOnly, setConfirmDeleteOpen]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -4670,22 +4648,6 @@ export default function Admin() {
               Published
             </button>
           </div>
-          {gameEnabled && (
-            <div style={S.headerGameSelect}>
-              <label style={S.headerGameSelectLabel}>Game:</label>
-              <select
-                value={activeSlug}
-                onChange={(e) => setActiveSlug(e.target.value)}
-                style={{ ...S.input, width: 240 }}
-              >
-                {selectGameOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
         </div>
         {tab !== 'settings' && (
           <div style={S.headerHint}>
@@ -5600,9 +5562,9 @@ export default function Admin() {
         <main style={S.wrap}>
           <div style={S.card}>
             <h3 style={{ marginTop:0 }}>Game Settings</h3>
-            {/* Codex note (2025-10-30): Saved Games dropdown (filesystem scan via /api/games/list) */}
+            {/* [Codex note] Unified Saved Games dropdown with Supabase + filesystem fallback */}
             <div data-codex="SettingsGamesDropdown">
-              <GamesDropdown />
+              <SavedGamesSelect />
             </div>
             <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
               <div>
@@ -5626,27 +5588,6 @@ export default function Admin() {
                   + New Game
                 </button>
               </div>
-              <SavedGamesPicker
-                games={savedGamesList}
-                value={savedGamesValue}
-                defaultSlug={defaultSlug}
-                onChange={(val) => {
-                  setConfirmDeleteOpen(false);
-                  const [slug, channel] = String(val || '').split(':');
-                  if (!slug) return;
-                  const normalized = channel === 'published' ? 'published' : 'draft';
-                  const match = savedGamesList.find(
-                    (entry) => entry.slug === slug && (entry.channel || 'draft') === normalized,
-                  );
-                  const label = match
-                    ? `${match.title || match.slug}${normalized === 'published' ? ' (published)' : ' (draft)'}`
-                    : undefined;
-                  applyOpenGameFromMenu(slug, normalized, label);
-                  setActiveTagsToOnly(slug);
-                  logConversation('You', `Switched to ${label || slug}`);
-                  logConversation('GPT', 'Tag filters updated to focus on the selected game.');
-                }}
-              />
               <div>
                 {confirmDeleteOpen ? (
                   <div
@@ -6888,16 +6829,6 @@ const S = {
     display: 'flex',
     gap: 8,
     flexWrap: 'wrap',
-  },
-  headerGameSelect: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerGameSelectLabel: {
-    color: 'var(--admin-muted)',
-    fontSize: 12,
-    fontWeight: 600,
   },
   headerHint: {
     fontSize: 12,
