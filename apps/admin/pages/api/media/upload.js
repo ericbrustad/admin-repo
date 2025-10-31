@@ -1,6 +1,5 @@
 // [Codex note] Uploads a file into channel-aware media pool.
-import { serverClient } from '../../../lib/supabaseClient';
-import { MEDIA_BUCKET, mediaPoolPrefix } from '../../../lib/mediaPool';
+import { MEDIA_BUCKET, ensureMediaBucket, mediaPoolPrefix } from '../../../lib/mediaPool';
 
 export const config = { api: { bodyParser: false } };
 
@@ -20,16 +19,6 @@ function normalizeChannel(value) {
   const raw = Array.isArray(value) ? value[0] : value;
   const normalized = String(raw || 'draft').toLowerCase();
   return normalized === 'published' ? 'published' : 'draft';
-}
-
-async function ensureBucket(supabase) {
-  try {
-    await supabase.storage.createBucket(MEDIA_BUCKET, { public: true });
-  } catch (error) {
-    if (error?.message && !/exists/i.test(error.message)) {
-      throw error;
-    }
-  }
 }
 
 export default async function handler(req, res) {
@@ -97,8 +86,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Empty payload' });
     }
 
-    const supabase = serverClient();
-    await ensureBucket(supabase);
+    const supabase = await ensureMediaBucket();
 
     const safeName = normalizeFilename(filename);
     const key = `${mediaPoolPrefix(channel)}${safeName}`.replace(/\/+/g, '/');

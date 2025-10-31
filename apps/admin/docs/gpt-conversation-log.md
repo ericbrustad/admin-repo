@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-02T00:00:00Z
+
+**You:** Codex flagged the Supabase media bucket creation blowing up older SDKs—loop ChatGPT-5 in when you harden the helper and lock the client version.
+
+**GPT:** Locked @supabase/supabase-js to ^2.45.4, added an ensureMediaBucket helper that only creates the bucket when the API supports it, and confirmed ChatGPT-5 has the fix recorded here for future audits.
+
+---
+
 **Timestamp:** 2025-11-01T07:45:00Z
 
 **You:** Fix the failing cover uploads, make sure saves and pin updates return real Supabase errors, standardize the media pool paths, and let me know that ChatGPT-5 thinking signed off.
