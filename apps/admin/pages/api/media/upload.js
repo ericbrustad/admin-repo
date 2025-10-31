@@ -1,74 +1,78 @@
-import { uploadBufferToStorage } from '../../../lib/supabase/storage.js';
+// [Codex note] Uploads a file into channel-aware media pool.
+import { serverClient } from '../../../lib/supabaseClient';
+import { MEDIA_BUCKET, mediaPoolPrefix } from '../../../lib/mediaPool';
 
-export const config = { api: { bodyParser: true } };
+export const config = { api: { bodyParser: false } };
 
-function sanitizeName(name = '') {
-  return String(name || '')
-    .trim()
+function normalizeSegment(segment = '') {
+  const safe = String(segment || '')
     .replace(/[^a-zA-Z0-9._-]+/g, '_')
     .replace(/_+/g, '_')
-    .replace(/^_+|_+$/g, '') || `upload_${Date.now()}`;
+    .replace(/^_+|_+$/g, '');
+  return safe || null;
 }
 
-function guessContentType(fileName = '', fallback = 'application/octet-stream') {
-  const ext = String(fileName || '').toLowerCase().split('.').pop();
-  switch (ext) {
-    case 'png': return 'image/png';
-    case 'jpg':
-    case 'jpeg': return 'image/jpeg';
-    case 'gif': return 'image/gif';
-    case 'webp': return 'image/webp';
-    case 'mp4': return 'video/mp4';
-    case 'webm': return 'video/webm';
-    case 'mov': return 'video/quicktime';
-    case 'mp3': return 'audio/mpeg';
-    case 'wav': return 'audio/wav';
-    case 'ogg': return 'audio/ogg';
-    default: return fallback;
-  }
+function normalizeFilename(raw = '') {
+  const cleaned = String(raw || '')
+    .replace(/\\/g, '/')
+    .replace(/^\/+|\/+$/g, '');
+  const segments = cleaned.split('/')
+    .map(normalizeSegment)
+    .filter(Boolean);
+  if (!segments.length) return `upload_${Date.now()}`;
+  const joined = segments.join('/');
+  // Remove duplicated mediapool or channel prefixes if present.
+  return joined.replace(/^(draft|public|published)\//i, '')
+    .replace(/^mediapool\//i, '')
+    || `upload_${Date.now()}`;
 }
 
-function decodeBase64(input = '') {
-  const trimmed = String(input || '').trim();
-  const commaIndex = trimmed.indexOf(',');
-  const payload = trimmed.startsWith('data:') && commaIndex >= 0
-    ? trimmed.slice(commaIndex + 1)
-    : trimmed;
-  return Buffer.from(payload, 'base64');
+function resolveChannel(input) {
+  const value = String(input || 'draft').toLowerCase();
+  return value === 'published' || value === 'public' ? 'published' : 'draft';
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    return res.status(405).end('Method Not Allowed');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {
-    const {
-      game = 'shared',
-      fileName,
-      contentBase64,
-      contentType,
-    } = req.body || {};
-
-    if (!fileName || !contentBase64) {
-      return res.status(400).json({ ok: false, error: 'Missing fileName or contentBase64' });
+    const channel = resolveChannel(req.query.channel);
+    const fileNameParam = req.query.filename || req.query.name || '';
+    const normalizedName = normalizeFilename(fileNameParam);
+    if (!normalizedName) {
+      return res.status(400).json({ ok: false, error: 'Missing filename' });
     }
 
-    const safeName = sanitizeName(fileName);
-    const buffer = decodeBase64(contentBase64);
-    const type = contentType || guessContentType(safeName);
-    const objectPath = `${sanitizeName(game)}/${Date.now()}_${safeName}`;
+    const chunks = [];
+    for await (const chunk of req) {
+      chunks.push(Buffer.from(chunk));
+    }
+    const body = Buffer.concat(chunks);
+    if (!body.length) {
+      return res.status(400).json({ ok: false, error: 'Empty payload' });
+    }
 
-    const upload = await uploadBufferToStorage({ path: objectPath, buffer, contentType: type });
+    const bucket = MEDIA_BUCKET || 'media';
+    const prefix = mediaPoolPrefix(channel);
+    const key = `${prefix}${normalizedName}`.replace(/\/+/g, '/');
+    const contentType = req.headers['content-type'] || 'application/octet-stream';
 
-    return res.status(200).json({
-      ok: true,
-      key: upload.path,
-      url: upload.publicUrl,
-      bucket: upload.bucket,
+    const supabase = serverClient();
+    const { data, error } = await supabase.storage.from(bucket).upload(key, body, {
+      upsert: true,
+      contentType,
     });
+
+    if (error) throw error;
+
+    const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(key);
+    const publicUrl = publicData?.publicUrl || '';
+
+    return res.status(200).json({ ok: true, bucket, key: data?.path || key, publicUrl, channel });
   } catch (error) {
-    return res.status(500).json({ ok: false, error: error?.message || 'Upload failed' });
+    return res.status(200).json({ ok: false, error: error?.message || 'upload failed' });
   }
 }

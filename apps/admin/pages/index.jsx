@@ -23,6 +23,7 @@ import { createNewGame } from '../lib/games/createNewGame.js';
 import { nextMissionId, nextDeviceId } from '../lib/ids.js';
 import { updateAllPinsInSnapshot, deriveInitialGeo } from '../lib/geo/updateAllPins.js';
 import { getDefaultGeo } from '../lib/geo/defaultGeo.js';
+import { MEDIA_BUCKET, mediaPoolPrefix } from '../lib/mediaPool';
 
 /* ───────────────────────── Helpers ───────────────────────── */
 async function fetchJsonSafe(url, fallback) {
@@ -174,64 +175,49 @@ const FOLDER_TO_TYPE = new Map([
 ]);
 
 /** Merge inventory across dirs so uploads show up everywhere */
-async function listInventory(dirs = ['mediapool']) {
+async function listInventory(dirs = ['mediapool']) { // dirs kept for signature compatibility
   const seen = new Set();
   const out = [];
-  const baseDirs = Array.isArray(dirs) && dirs.length ? dirs : ['mediapool'];
-  const targets = [];
-
-  const normalize = (value) => String(value || '')
-    .trim()
-    .replace(/^\/+|\/+$/g, '');
-
-  const ensureMediapool = (value) => {
-    const normalized = normalize(value);
-    if (!normalized) return '';
-    if (normalized.toLowerCase().startsWith('mediapool')) return normalized;
-    return `mediapool/${normalized}`;
-  };
-
-  const pushTarget = (dir) => {
-    const normalized = normalize(dir);
-    if (!normalized) return;
-    if (/^(draft|public)\//i.test(normalized)) {
-      const key = normalized
-        .split('/')
-        .map((segment) => segment.trim())
-        .filter(Boolean)
-        .join('/')
-        .toLowerCase();
-      if (!targets.includes(key)) targets.push(key);
-      return;
-    }
-    const mediapoolDir = ensureMediapool(normalized);
-    ['public', 'draft'].forEach((channel) => {
-      if (!mediapoolDir) return;
-      const key = `${channel}/${mediapoolDir}`
-        .split('/')
-        .map((segment) => segment.trim())
-        .filter(Boolean)
-        .join('/')
-        .toLowerCase();
-      if (!targets.includes(key)) targets.push(key);
-    });
-  };
-
-  baseDirs.forEach(pushTarget);
+  void dirs;
+  const channels = ['draft', 'published'];
 
   await Promise.all(
-    targets.map(async (dir) => {
+    channels.map(async (channel) => {
       try {
-        const r = await fetch(`/api/list-media?dir=${encodeURIComponent(dir)}`, { credentials: 'include', cache: 'no-store' });
-        const j = await r.json();
-        (j?.items || []).forEach((it = {}) => {
-          const key = it.path || it.url || it.id || '';
-          if (!key) return;
-          if (seen.has(key)) return;
-          seen.add(key);
-          out.push(it);
+        const params = new URLSearchParams();
+        params.set('channel', channel);
+        const response = await fetch(`/api/media/list?${params.toString()}`, {
+          credentials: 'include',
+          cache: 'no-store',
         });
-      } catch {}
+        const payload = await response.json().catch(() => ({}));
+        if (payload?.ok === false) return;
+        const entries = Array.isArray(payload?.items)
+          ? payload.items
+          : Array.isArray(payload?.files)
+            ? payload.files
+            : [];
+
+        entries.forEach((entry = {}) => {
+          const key = entry.path || entry.url || entry.id || '';
+          if (!key || seen.has(key)) return;
+          seen.add(key);
+          const url = entry.url || entry.publicUrl || '';
+          const path = entry.path || key;
+          const type = entry.type || entry.kind || classifyByExt(url || path || entry.name || '');
+          out.push({
+            ...entry,
+            channel: entry.channel || channel,
+            path,
+            url: url || path,
+            thumbUrl: entry.thumbUrl || url || path,
+            type,
+            kind: type,
+          });
+        });
+      } catch (error) {
+        console.warn('listInventory: unable to load media', error);
+      }
     })
   );
 
@@ -344,39 +330,6 @@ async function deleteMediaEntry(entry) {
     } catch {}
   }
   return false;
-}
-
-async function fileToBase64(file) {
-  if (!file) return '';
-  if (typeof window !== 'undefined' && typeof window.FileReader !== 'undefined') {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result;
-        if (typeof result === 'string') {
-          const base64 = result.split(',')[1] || '';
-          resolve(base64);
-        } else {
-          reject(new Error('Unable to read file contents'));
-        }
-      };
-      reader.onerror = () => reject(reader.error || new Error('Unable to read file contents'));
-      reader.readAsDataURL(file);
-    });
-  }
-  const arrayBuffer = await file.arrayBuffer();
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(arrayBuffer).toString('base64');
-  }
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    binary += String.fromCharCode.apply(null, chunk);
-  }
-  if (typeof btoa === 'function') return btoa(binary);
-  throw new Error('Base64 conversion is not supported in this environment');
 }
 
 /* ───────────────────────── Defaults ───────────────────────── */
@@ -3951,12 +3904,12 @@ export default function Admin() {
       resolvedFolder = `mediapool/${normalizedFolder}`;
     }
 
-    const BUCKET = process.env.NEXT_PUBLIC_SUPABASE_MEDIA_BUCKET || 'media';
-    const prefix = editChannel === 'published' ? 'public' : 'draft';
-    const folder = `${prefix}/${resolvedFolder}`.replace(/\/+/g, '/');
-
     const uniqueName = `${Date.now()}-${safeName}`;
-    const destinationLabel = `${prefix.toUpperCase()} @ ${BUCKET}/${folder}`;
+    const channel = editChannel === 'published' ? 'published' : 'draft';
+    const poolPrefix = mediaPoolPrefix(channel);
+    const relativeFolder = resolvedFolder.replace(/^mediapool\/?/i, '');
+    const remoteName = relativeFolder ? `${relativeFolder}/${uniqueName}` : uniqueName;
+    const destinationLabel = `${channel.toUpperCase()} @ ${MEDIA_BUCKET}/${poolPrefix}${relativeFolder}`.replace(/\/+/g, '/');
     const overWarning = (file.size || 0) > MEDIA_WARNING_BYTES;
     if (overWarning) {
       const sizeMb = Math.max(0.01, (file.size || 0) / (1024 * 1024));
@@ -3964,56 +3917,23 @@ export default function Admin() {
     } else {
       setUploadStatus(`Uploading ${safeName} to ${destinationLabel}…`);
     }
-    const base64 = await fileToBase64(file);
-    const body = {
-      fileName: uniqueName,
-      folder: folder,
-      sizeBytes: file.size || 0,
-      contentBase64: base64,
-      remoteUrl: options.remoteUrl || '',
-    };
-    const res = await fetch('/api/upload', {
+    const res = await fetch(`/api/media/upload?channel=${encodeURIComponent(channel)}&filename=${encodeURIComponent(remoteName)}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': file.type || 'application/octet-stream' },
       credentials: 'include',
-      body: JSON.stringify(body),
+      body: file,
     });
-    const j = await res.json().catch(() => ({}));
-    if (res.ok) {
-      let message = `✅ Registered ${safeName} in ${destinationLabel}`;
-      if (j?.manifestFallback && j?.manifestPath) {
-        message += ` (manifest fallback: ${j.manifestPath})`;
-      } else if (j?.manifestPath) {
-        message += ` (manifest: ${j.manifestPath})`;
-      }
-      setUploadStatus(message);
-    } else {
-      setUploadStatus(`❌ ${j?.error || 'upload failed'}`);
+    const payload = await res.json().catch(() => ({}));
+    if (payload?.ok) {
+      const key = payload?.key || `${poolPrefix}${remoteName}`;
+      const publicUrl = payload?.publicUrl || '';
+      setUploadStatus(`✅ Uploaded ${safeName} to ${MEDIA_BUCKET}/${key}`);
+      return publicUrl;
     }
-    return res.ok ? (j?.item?.url || '') : '';
+    setUploadStatus(`❌ ${payload?.error || 'upload failed'}`);
+    return '';
   }
 
-  const selectGameOptions = useMemo(() => {
-    const entries = new Map();
-    entries.set('default', `${STARFIELD_DEFAULTS.title} (default)`);
-    const bySlug = gamesIndex?.bySlug || {};
-    Object.entries(bySlug).forEach(([slug, channels]) => {
-      if (!slug || slug === 'default') return;
-      const source = channels?.draft || channels?.published || {};
-      const title = source.title || slug;
-      const mode = source.mode;
-      entries.set(slug, mode ? `${title} — ${mode}` : title);
-    });
-    if (entries.size === 1 && Array.isArray(games)) {
-      games.forEach((game) => {
-        if (!game || !game.slug || game.slug === 'default') return;
-        if (entries.has(game.slug)) return;
-        const label = `${game.title || game.slug}${game.mode ? ` — ${game.mode}` : ''}`;
-        entries.set(game.slug, label);
-      });
-    }
-    return Array.from(entries, ([value, label]) => ({ value, label }));
-  }, [gamesIndex, games]);
   const settingsMenuGames = useMemo(() => {
     const entries = [
       {
@@ -4705,22 +4625,6 @@ export default function Admin() {
               Published
             </button>
           </div>
-          {gameEnabled && (
-            <div style={S.headerGameSelect}>
-              <label style={S.headerGameSelectLabel}>Game:</label>
-              <select
-                value={activeSlug}
-                onChange={(e) => setActiveSlug(e.target.value)}
-                style={{ ...S.input, width: 240 }}
-              >
-                {selectGameOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
         </div>
         {tab !== 'settings' && (
           <div style={S.headerHint}>
@@ -6902,16 +6806,6 @@ const S = {
     display: 'flex',
     gap: 8,
     flexWrap: 'wrap',
-  },
-  headerGameSelect: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  },
-  headerGameSelectLabel: {
-    color: 'var(--admin-muted)',
-    fontSize: 12,
-    fontWeight: 600,
   },
   headerHint: {
     fontSize: 12,

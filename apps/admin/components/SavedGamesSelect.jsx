@@ -3,11 +3,25 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const S = {
-  label: { display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 },
+  label: {
+    display: 'block',
+    fontSize: 12,
+    fontWeight: 600,
+    marginBottom: 6,
+    color: '#111827',
+  },
   help: { fontSize: 12, opacity: 0.7, marginTop: 6 },
   select: {
-    width: '100%', maxWidth: 760, border: '1px solid #D1D5DB', borderRadius: 10,
-    padding: '10px 12px', background: 'transparent', outline: 'none'
+    width: '100%',
+    maxWidth: 760,
+    border: '1px solid #D1D5DB',
+    borderRadius: 10,
+    padding: '10px 12px',
+    background: 'transparent',
+    outline: 'none',
+    color: '#111827',
+    opacity: 1,
+    filter: 'none',
   },
 };
 
