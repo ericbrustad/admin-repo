@@ -335,3 +335,11 @@
 **You:** Add project-level toggles so we can flip the Game mirror and set the default new-game channel, surface a Draft/Live switch inside the New Game modal, and make sure legacy titles like Prince Darkness return to the Saved Games list. Loop ChatGPT-5 into the change log.
 
 **GPT:** Shipped Supabase-backed admin flags with a Settings panel toggle, wired the New Game workflow to honor Draft vs. Live on create, restored Prince Darkness draft assets plus index entries, and logged the work here so ChatGPT-5 stays in the loop.
+
+---
+
+**Timestamp:** 2025-02-14T18:45:00Z
+
+**You:** Supabase v1 shims are still hanging around and the API routes are breaking with “select is not a function.” Pin v2 properly, swap the server helper to the Service Role client, and make sure ChatGPT-5 knows the fixes landed.
+
+**GPT:** Confirmed `@supabase/supabase-js` is locked to ^2.45.4 everywhere, replaced the REST shim with the shared `serverClient()` Service Role helper across saves, loads, flags, and feedback APIs, refreshed the migration script to call `.select()` on each upsert, and noted here that ChatGPT-5 is ready to retest the admin flows.
