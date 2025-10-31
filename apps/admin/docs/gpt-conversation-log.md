@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-01T02:15:00Z
+
+**You:** Merge the draft/published pickers into one Saved Games dropdown, hydrate the admin instantly when I switch games, and make sure Supabase plus filesystem backups still feed the list. Also note that ChatGPT-5 thinking signed off.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, shipped unified `/api/games/all` + `/api/games/one` endpoints that blend Supabase and local fallbacks, replaced the Settings pickers with the new Saved Games dropdown that prefetches configs and dispatches instant hydration events, and wired the admin state bridge so tag filters and status logs update as soon as a game is selected.
+
+---
+
 **Timestamp:** 2025-10-31T23:30:00Z
 
 **You:** Starfield Dawn still overrides every saved game—reset the configs to the restored forest/military/cartoon themes, make Forest Outpost the default skin, and confirm ChatGPT-5 thinking signs off.

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import GamesDropdown from '../components/GamesDropdown';
+import SavedGamesSelect from '../components/SavedGamesSelect';
 import HeaderBar from '../components/HeaderBar';
 import TestLauncher from '../components/TestLauncher';
 import HomeDefaultButtons from '../components/HomeDefaultButtons';
@@ -7,7 +7,6 @@ import AnswerResponseEditor from '../components/AnswerResponseEditor';
 import InlineMissionResponses from '../components/InlineMissionResponses';
 import AssignedMediaTab from '../components/AssignedMediaTab';
 import SafeBoundary from '../components/SafeBoundary';
-import SavedGamesPicker from '../components/Settings/SavedGamesPicker';
 import ProjectFlags from '../components/Settings/ProjectFlags.jsx';
 import GlobalLocationSelector from '../components/Settings/GlobalLocationSelector.jsx';
 import HideLegacyStatusToggles from '../components/HideLegacyStatusToggles';
@@ -4087,18 +4086,6 @@ export default function Admin() {
     return entries;
   }, [gamesIndex, games]);
 
-  const savedGamesChannel = useMemo(() => {
-    const slug = activeSlug || 'default';
-    const desired = slug === 'default' ? 'draft' : headerStatus;
-    const match = savedGamesList.some(
-      (entry) => entry.slug === slug && (entry.channel || 'draft') === desired,
-    );
-    if (match) return desired;
-    return 'draft';
-  }, [activeSlug, headerStatus, savedGamesList]);
-
-  const savedGamesValue = `${activeSlug || 'default'}:${savedGamesChannel}`;
-
   useEffect(() => {
     if (tab !== 'settings' && confirmDeleteOpen) {
       setConfirmDeleteOpen(false);
@@ -4118,6 +4105,54 @@ export default function Admin() {
     },
     [setActiveSlug, setEditChannel, setTab, setStatus],
   );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const handle = (event) => {
+      const payload = event?.detail && typeof event.detail === 'object' ? event.detail : event;
+      if (!payload) return;
+      const slug = String(payload.slug || 'default');
+      const incoming = String(payload.channel || '').toLowerCase();
+      const channelLabel = incoming === 'published' ? 'published' : incoming === 'other' ? 'other' : 'draft';
+      const normalized = slug === 'default'
+        ? 'draft'
+        : channelLabel === 'published'
+        ? 'published'
+        : 'draft';
+      const match = savedGamesList.find(
+        (entry) => entry.slug === slug && (entry.channel || 'draft') === channelLabel,
+      );
+      const baseTitle = match?.title || payload.title || match?.slug || slug;
+      const suffix = channelLabel === 'published' ? ' (published)' : channelLabel === 'other' ? ' (other)' : ' (draft)';
+      const label = `${baseTitle}${suffix}`;
+      const currentSlug = activeSlug || 'default';
+      const currentChannel = editChannel === 'published' ? 'published' : 'draft';
+      const alreadySelected = slug === currentSlug
+        && (channelLabel === currentChannel || (channelLabel === 'other' && currentChannel === 'draft'));
+      setConfirmDeleteOpen(false);
+      applyOpenGameFromMenu(slug, channelLabel, label);
+      setActiveTagsToOnly(slug);
+      if (!alreadySelected) {
+        logConversation('You', `Switched to ${label}`);
+        logConversation('GPT', 'Tag filters updated to focus on the selected game.');
+      }
+    };
+
+    window.addEventListener('AdminGameSelected', handle);
+    try {
+      const cached = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('admin:lastSelection') : null;
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          handle({ detail: parsed });
+        }
+      }
+    } catch {}
+
+    return () => {
+      window.removeEventListener('AdminGameSelected', handle);
+    };
+  }, [activeSlug, editChannel, applyOpenGameFromMenu, logConversation, savedGamesList, setActiveTagsToOnly, setConfirmDeleteOpen]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -5600,9 +5635,9 @@ export default function Admin() {
         <main style={S.wrap}>
           <div style={S.card}>
             <h3 style={{ marginTop:0 }}>Game Settings</h3>
-            {/* Codex note (2025-10-30): Saved Games dropdown (filesystem scan via /api/games/list) */}
+            {/* [Codex note] Unified Saved Games dropdown with Supabase + filesystem fallback */}
             <div data-codex="SettingsGamesDropdown">
-              <GamesDropdown />
+              <SavedGamesSelect />
             </div>
             <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
               <div>
@@ -5626,27 +5661,6 @@ export default function Admin() {
                   + New Game
                 </button>
               </div>
-              <SavedGamesPicker
-                games={savedGamesList}
-                value={savedGamesValue}
-                defaultSlug={defaultSlug}
-                onChange={(val) => {
-                  setConfirmDeleteOpen(false);
-                  const [slug, channel] = String(val || '').split(':');
-                  if (!slug) return;
-                  const normalized = channel === 'published' ? 'published' : 'draft';
-                  const match = savedGamesList.find(
-                    (entry) => entry.slug === slug && (entry.channel || 'draft') === normalized,
-                  );
-                  const label = match
-                    ? `${match.title || match.slug}${normalized === 'published' ? ' (published)' : ' (draft)'}`
-                    : undefined;
-                  applyOpenGameFromMenu(slug, normalized, label);
-                  setActiveTagsToOnly(slug);
-                  logConversation('You', `Switched to ${label || slug}`);
-                  logConversation('GPT', 'Tag filters updated to focus on the selected game.');
-                }}
-              />
               <div>
                 {confirmDeleteOpen ? (
                   <div
