@@ -1,4 +1,4 @@
-import { supaService } from '../../../lib/supabase/server.js';
+import { serverClient } from '../../../lib/supabaseClient';
 
 function normalizeSlug(value) {
   const slug = String(value || '').trim();
@@ -13,9 +13,9 @@ export default async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  let supa;
+  let supabase;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
     return res.status(500).json({ ok: false, error: error?.message || 'Supabase configuration missing' });
   }
@@ -25,20 +25,32 @@ export default async function handler(req, res) {
     const channel = req.query?.channel || 'published';
     const slug = normalizeSlug(slugParam);
 
-    const [draft, draftGame] = await Promise.all([
-      supa.from('missions').select('*', {
-        filters: { game_slug: slug, channel: 'draft' },
-        single: true,
-      }),
-      supa.from('games').select('*', { filters: { slug, channel: 'draft' }, single: true }),
-    ]);
-    if (draft.error) {
-      throw draft.error;
+    const { data: draftGame, error: draftGameError } = await supabase
+      .from('games')
+      .select('*')
+      .eq('slug', slug)
+      .eq('channel', 'draft')
+      .maybeSingle();
+    if (draftGameError) {
+      throw draftGameError;
+    }
+
+    const keyColumn = draftGame?.id ? 'game_id' : 'game_slug';
+    const keyValue = draftGame?.id || slug;
+
+    const { data: draftMissions, error: draftMissionsError } = await supabase
+      .from('missions')
+      .select('*')
+      .eq(keyColumn, keyValue)
+      .eq('channel', 'draft')
+      .maybeSingle();
+    if (draftMissionsError) {
+      throw draftMissionsError;
     }
 
     const now = new Date().toISOString();
-    const draftItems = Array.isArray(draft.data?.items) ? draft.data.items : [];
-    const gameId = draftGame?.data?.id || null;
+    const draftItems = Array.isArray(draftMissions?.items) ? draftMissions.items : [];
+    const gameId = draftGame?.id || null;
 
     const missionPayload = {
       game_slug: slug,
@@ -48,12 +60,15 @@ export default async function handler(req, res) {
     };
     if (gameId) missionPayload.game_id = gameId;
 
-    const publishResult = await supa.from('missions').upsert(missionPayload);
-    if (publishResult.error) {
-      throw publishResult.error;
+    const { error: publishError } = await supabase
+      .from('missions')
+      .upsert(missionPayload, { onConflict: 'game_slug,channel' })
+      .select();
+    if (publishError) {
+      throw publishError;
     }
 
-    const draftGameData = draftGame?.data || {};
+    const draftGameData = draftGame || {};
     const gamePayload = {
       slug,
       channel,
@@ -75,9 +90,12 @@ export default async function handler(req, res) {
     };
     if (gameId) gamePayload.id = gameId;
 
-    const gameUpdate = await supa.from('games').upsert(gamePayload);
-    if (gameUpdate.error) {
-      throw gameUpdate.error;
+    const { error: gameError } = await supabase
+      .from('games')
+      .upsert(gamePayload, { onConflict: 'slug,channel' })
+      .select();
+    if (gameError) {
+      throw gameError;
     }
 
     return res.status(200).json({ ok: true, slug, channel, updated_at: now, missions: draftItems.length });

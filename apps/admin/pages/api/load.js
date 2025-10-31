@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { supaService } from '../../lib/supabase/server.js';
+import { serverClient } from '../../lib/supabaseClient';
 
 async function readJsonFile(filePath) {
   try {
@@ -30,29 +30,49 @@ export default async function handler(req, res) {
   const { slug: rawSlug, channel = 'draft' } = req.query || {};
   const slug = normalizeSlug(rawSlug);
 
-  let supa;
+  let supabase = null;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
-    supa = null;
+    supabase = null;
   }
 
-  if (supa) {
+  if (supabase) {
     try {
-      const gameRes = await supa.from('games').select('*', { filters: { slug, channel }, single: true });
-      if (!gameRes.error && gameRes.data) {
-        const game = gameRes.data;
+      const { data: game, error: gameError } = await supabase
+        .from('games')
+        .select('*')
+        .eq('slug', slug)
+        .eq('channel', channel)
+        .maybeSingle();
+
+      if (!gameError && game) {
         const config = game?.config || {};
         const gameId = game?.id || null;
 
-        const missionFilters = gameId ? { game_id: gameId, channel } : { game_slug: slug, channel };
-        const deviceFilters = gameId ? { game_id: gameId, channel } : { game_slug: slug, channel };
-        const powerupFilters = gameId ? { game_id: gameId, channel } : { game_slug: slug, channel };
+        const keyColumn = gameId ? 'game_id' : 'game_slug';
+        const keyValue = gameId || slug;
 
         const [missionsRes, devicesRes, powerupsRes] = await Promise.all([
-          supa.from('missions').select('*', { filters: missionFilters, single: true }),
-          supa.from('devices').select('*', { filters: deviceFilters, single: true }),
-          supa.from('powerups').select('*', { filters: powerupFilters, single: true }).catch(() => ({ data: null, error: null })),
+          supabase
+            .from('missions')
+            .select('*')
+            .eq(keyColumn, keyValue)
+            .eq('channel', channel)
+            .maybeSingle(),
+          supabase
+            .from('devices')
+            .select('*')
+            .eq(keyColumn, keyValue)
+            .eq('channel', channel)
+            .maybeSingle(),
+          supabase
+            .from('powerups')
+            .select('*')
+            .eq(keyColumn, keyValue)
+            .eq('channel', channel)
+            .maybeSingle()
+            .catch(() => ({ data: null, error: null })),
         ]);
 
         const missions = missionsRes?.data?.items || [];
