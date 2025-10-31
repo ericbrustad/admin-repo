@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 const MapContainer = dynamic(() => import('react-leaflet').then((m) => m.MapContainer), { ssr: false });
@@ -6,24 +6,6 @@ const TileLayer = dynamic(() => import('react-leaflet').then((m) => m.TileLayer)
 const Marker = dynamic(() => import('react-leaflet').then((m) => m.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then((m) => m.Popup), { ssr: false });
 const Circle = dynamic(() => import('react-leaflet').then((m) => m.Circle), { ssr: false });
-const UseMap = dynamic(() => import('react-leaflet').then((m) => m.useMap), { ssr: false });
-
-function MapReady({ onReady }) {
-  const map = UseMap();
-
-  useEffect(() => {
-    if (!map || !onReady) return;
-    onReady({
-      getCenterZoom: () => ({
-        lat: map.getCenter().lat,
-        lng: map.getCenter().lng,
-        zoom: map.getZoom(),
-      }),
-    });
-  }, [map, onReady]);
-
-  return null;
-}
 
 export default function LeafletMap({
   center = [44.98, -93.26],
@@ -33,6 +15,8 @@ export default function LeafletMap({
   circlesMeters = [],
   onReady,
 }) {
+  const [mapInstance, setMapInstance] = useState(null);
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const id = 'leaflet-css';
@@ -70,16 +54,32 @@ export default function LeafletMap({
     };
   }, []);
 
+  useEffect(() => {
+    if (!mapInstance || !onReady) return;
+    const map = mapInstance;
+    const api = {
+      getCenterZoom: () => {
+        const c = map.getCenter();
+        return { lat: c.lat, lng: c.lng, zoom: map.getZoom() };
+      },
+    };
+    onReady(api);
+  }, [mapInstance, onReady]);
+
   if (typeof window === 'undefined') return null;
 
   return (
     <div style={{ border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden', height }}>
-      <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
+      <MapContainer
+        center={center}
+        zoom={zoom}
+        style={{ height: '100%', width: '100%' }}
+        whenCreated={(map) => setMapInstance(map)}
+      >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        <MapReady onReady={onReady} />
         {markers.map((marker, index) => (
           <Marker key={index} position={[marker.lat, marker.lng]}>
             {marker.title && <Popup>{marker.title}</Popup>}

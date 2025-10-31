@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-01T00:30:00Z
+
+**You:** Fix the Settings map preview crash that keeps throwing chunk-load errors and make sure ChatGPT-5 knows what changed.
+
+**GPT:** Reworked the Leaflet preview to rely on `MapContainer`'s `whenCreated` hook instead of the dynamic `useMap` helper so the chunk loads cleanly, keeping ChatGPT-5 in the loop via this log.
+
+---
+
 **Timestamp:** 2025-11-02T12:00:00Z
 
 **You:** Ship the global Leaflet ↔ Mapbox engine toggle with settings preview, geolocate, and the recenter-with-offset API for missions/devices/pins. Make sure the admin remembers my preference and call out that ChatGPT-5 thinking verified the flow.
