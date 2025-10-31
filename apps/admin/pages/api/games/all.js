@@ -1,6 +1,6 @@
 // Admin — unified games list (Supabase + filesystem fallback)
-import { serverClient } from '../../../lib/supabaseClient';
-import { findGames as findLocalGames } from '../../../lib/find-games';
+import { serverClient } from '../../../lib/supabaseClient.js';
+import { findGames as findLocalGames } from '../../../lib/find-games.js';
 
 function normalizeChannel(v) {
   const s = String(v || '').toLowerCase();

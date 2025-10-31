@@ -1,4 +1,4 @@
-import { serverClient } from '../../../lib/supabaseClient';
+import { serverClient } from '../../../lib/supabaseClient.js';
 import { upsertReturning } from '../../../lib/supabase/upsertReturning.js';
 
 export default async function handler(req, res) {
