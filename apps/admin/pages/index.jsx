@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import SavedGamesSelect from '../components/SavedGamesSelect';
 import HeaderBar from '../components/HeaderBar';
 import TestLauncher from '../components/TestLauncher';
@@ -1699,6 +1700,8 @@ const DEFAULT_SNAPSHOT_KEY = 'erix.defaultOriginalSnapshot';
 
 /* ───────────────────────── Root ───────────────────────── */
 export default function Admin() {
+  const router = useRouter();
+  const lastQuerySelectionRef = useRef('');
   const [gameEnabled, setGameEnabled] = useState(GAME_ENABLED);
   const [tab, setTab] = useState('missions');
 
@@ -4047,6 +4050,47 @@ export default function Admin() {
     }
   }, [tab, confirmDeleteOpen]);
 
+  useEffect(() => {
+    if (!router?.isReady) return;
+    const rawSlug = router.query?.game;
+    const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+    if (!slug) return;
+    const rawChannel = router.query?.channel;
+    const channel = Array.isArray(rawChannel) ? rawChannel[0] : rawChannel;
+    const normalizedChannel = channel === 'published' ? 'published' : 'draft';
+    const key = `${slug}::${normalizedChannel}`;
+    if (lastQuerySelectionRef.current === key) return;
+    lastQuerySelectionRef.current = key;
+    const match = settingsMenuGames.find(
+      (entry) => entry.slug === slug && (entry.channel === normalizedChannel || (normalizedChannel === 'draft' && entry.channel === 'default')),
+    );
+    const label = match?.label || match?.title || slug;
+    applyOpenGameFromMenu(slug, normalizedChannel, label);
+  }, [router, router?.isReady, router?.query?.game, router?.query?.channel, settingsMenuGames, applyOpenGameFromMenu]);
+
+  const syncRouterToGame = useCallback(
+    (slug, channel = 'draft') => {
+      if (!slug || !router) return;
+      const normalized = channel === 'published' ? 'published' : 'draft';
+      const currentSlugParam = router.query?.game;
+      const currentSlug = Array.isArray(currentSlugParam) ? currentSlugParam[0] : currentSlugParam;
+      const currentChannelParam = router.query?.channel;
+      const currentChannel = Array.isArray(currentChannelParam) ? currentChannelParam[0] : currentChannelParam;
+      const normalizedCurrent = currentChannel === 'published' ? 'published' : 'draft';
+      if (currentSlug === slug && normalizedCurrent === normalized) {
+        lastQuerySelectionRef.current = `${slug}::${normalized}`;
+        return;
+      }
+      lastQuerySelectionRef.current = `${slug}::${normalized}`;
+      if (!router.isReady) return;
+      const nextQuery = { ...router.query, game: slug };
+      if (normalized) nextQuery.channel = normalized; else delete nextQuery.channel;
+      delete nextQuery.mission;
+      router.push({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
+    },
+    [router],
+  );
+
   const applyOpenGameFromMenu = useCallback(
     (slug, channel = 'draft', label = '') => {
       if (!slug) return;
@@ -4057,8 +4101,12 @@ export default function Admin() {
       setTab('settings');
       const displayLabel = label || `${slug} (${normalized === 'default' ? 'default' : nextChannel})`;
       setStatus(`Opened ${displayLabel}`);
+      setActiveTagsToOnly(slug);
+      logConversation('You', `Switched to ${displayLabel || slug}`);
+      logConversation('GPT', 'Tag filters updated to focus on the selected game.');
+      syncRouterToGame(slug, nextChannel);
     },
-    [setActiveSlug, setEditChannel, setTab, setStatus],
+    [setActiveSlug, setEditChannel, setTab, setStatus, setActiveTagsToOnly, logConversation, syncRouterToGame],
   );
 
   useEffect(() => {
@@ -5581,7 +5629,6 @@ export default function Admin() {
         <main style={S.wrap}>
           <div style={S.card}>
             <h3 style={{ marginTop:0 }}>Game Settings</h3>
-            {/* [Codex note] Unified Saved Games dropdown with Supabase + filesystem fallback */}
             <div data-codex="SettingsGamesDropdown">
               <SavedGamesSelect />
             </div>
@@ -6165,7 +6212,7 @@ export default function Admin() {
               {metaDevFooterLine}
             </div>
             <div style={{ ...S.settingsFooterTime, fontWeight: 600 }}>
-              Repo: {metaRepoFooterLabel} • Branch: {metaBranchFooterLabel} • Commit: {metaCommitFooterLabel} • Deployment: {metaDeploymentFooterLabel} • Timestamp {metaFooterNowLabel}
+              Dev Build Info — Repo: {metaRepoFooterLabel} • Branch: {metaBranchFooterLabel} • Commit: {metaCommitFooterLabel} • Deployment: {metaDeploymentFooterLabel} • Timestamp {metaFooterNowLabel}
             </div>
           </footer>
         </main>

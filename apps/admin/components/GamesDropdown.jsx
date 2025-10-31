@@ -1,2 +1,3 @@
-// [Codex note] Deprecated wrapper so any legacy imports render the unified picker.
+// Deprecated wrapper to avoid duplicate “Saved Games” pickers.
+// Route all usages to the unified Settings dropdown.
 export { default } from './SavedGamesSelect';

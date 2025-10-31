@@ -1,4 +1,4 @@
-import { serverClient } from '../../lib/supabaseClient';
+import { serverClient } from '../../lib/supabaseClient.js';
 
 async function trySelectKV(supabase) {
   if (!supabase) return { ok: false, reason: 'missing_supabase' };

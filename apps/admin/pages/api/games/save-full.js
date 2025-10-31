@@ -1,4 +1,5 @@
-import { upsertGameRow } from '../../../lib/games/persistGame';
+import { serverClient } from '../../../lib/supabaseClient.js';
+import { upsertReturning } from '../../../lib/supabase/upsertReturning.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
