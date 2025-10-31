@@ -1,4 +1,5 @@
-import { supaService } from '../../lib/supabase/server.js';
+import { serverClient } from '../../lib/supabaseClient';
+import { upsertReturning } from '../../lib/supabase/upsertReturning.js';
 
 function normalizeSlug(value) {
   const slug = String(value || '').trim();
@@ -13,9 +14,9 @@ export default async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  let supa;
+  let supabase;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
     return res.status(500).json({ ok: false, error: error?.message || 'Supabase configuration missing' });
   }
@@ -43,7 +44,7 @@ export default async function handler(req, res) {
     const tags = Array.isArray(gameMeta?.tags) ? gameMeta.tags : [];
     const mode = configInput?.splash?.mode || gameMeta.mode || null;
 
-    const gameResult = await supa.from('games').upsert({
+    const gameResult = await upsertReturning(supabase, 'games', {
       slug,
       channel: 'draft',
       title: gameMeta?.title || slug,
@@ -61,13 +62,9 @@ export default async function handler(req, res) {
       tags,
       status: 'draft',
       updated_at: now,
-    });
+    }, { onConflict: 'slug,channel' });
 
-    if (gameResult?.error) {
-      throw gameResult.error;
-    }
-
-    const gameRow = Array.isArray(gameResult?.data) ? gameResult.data[0] : gameResult?.data;
+    const gameRow = Array.isArray(gameResult) ? gameResult[0] : gameResult;
     const gameId = gameRow?.id || null;
 
     const devicePayload = {
@@ -86,15 +83,10 @@ export default async function handler(req, res) {
     };
     if (gameId) powerupPayload.game_id = gameId;
 
-    const [devicesResult, powerupsResult] = await Promise.all([
-      supa.from('devices').upsert(devicePayload),
-      supa.from('powerups').upsert(powerupPayload).catch(() => ({ error: null })),
+    await Promise.all([
+      upsertReturning(supabase, 'devices', devicePayload, { onConflict: 'game_slug,channel' }),
+      upsertReturning(supabase, 'powerups', powerupPayload, { onConflict: 'game_slug,channel' }).catch(() => null),
     ]);
-
-    const failure = [devicesResult, powerupsResult].find((result) => result?.error);
-    if (failure && failure.error) {
-      throw failure.error;
-    }
 
     return res.status(200).json({ ok: true, slug, updated_at: now });
   } catch (error) {

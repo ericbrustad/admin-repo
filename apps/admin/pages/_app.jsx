@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { installGlobalSettingsBridge } from '../lib/settingsBridge';
+import { MapEngineProvider } from '../components/maps/EngineProvider';
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -13,5 +14,9 @@ export default function App({ Component, pageProps }) {
     return cleanup;
   }, [router.asPath]);
 
-  return <Component {...pageProps} />;
+  return (
+    <MapEngineProvider>
+      <Component {...pageProps} />
+    </MapEngineProvider>
+  );
 }

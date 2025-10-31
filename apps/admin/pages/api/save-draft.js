@@ -1,4 +1,5 @@
-import { supaService } from '../../lib/supabase/server.js';
+import { serverClient } from '../../lib/supabaseClient';
+import { upsertReturning } from '../../lib/supabase/upsertReturning.js';
 
 function normalizeSlug(value) {
   const slug = String(value || '').trim();
@@ -26,9 +27,9 @@ export default async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  let supa;
+  let supabase;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
     return res.status(500).json({ ok: false, error: error?.message || 'Supabase configuration missing' });
   }
@@ -67,7 +68,7 @@ export default async function handler(req, res) {
 
     let gameId = null;
     if (config) {
-      const gameResult = await supa.from('games').upsert({
+      const gameResult = await upsertReturning(supabase, 'games', {
         slug,
         channel: 'draft',
         title: gameMeta?.title || slug,
@@ -85,11 +86,8 @@ export default async function handler(req, res) {
         tags,
         status: 'draft',
         updated_at: now,
-      });
-      if (gameResult?.error) {
-        throw gameResult.error;
-      }
-      const row = Array.isArray(gameResult?.data) ? gameResult.data[0] : gameResult?.data;
+      }, { onConflict: 'slug,channel' });
+      const row = Array.isArray(gameResult) ? gameResult[0] : gameResult;
       gameId = row?.id || null;
     }
 
@@ -102,7 +100,7 @@ export default async function handler(req, res) {
         updated_at: now,
       };
       if (gameId) payload.game_id = gameId;
-      tasks.push(supa.from('missions').upsert(payload));
+      tasks.push(upsertReturning(supabase, 'missions', payload, { onConflict: 'game_slug,channel' }));
     }
 
     if (devicesProvided || (config && Array.isArray(config.devices))) {
@@ -113,7 +111,7 @@ export default async function handler(req, res) {
         updated_at: now,
       };
       if (gameId) payload.game_id = gameId;
-      tasks.push(supa.from('devices').upsert(payload));
+      tasks.push(upsertReturning(supabase, 'devices', payload, { onConflict: 'game_slug,channel' }));
     }
 
     if (config && Array.isArray(config.powerups)) {
@@ -124,15 +122,11 @@ export default async function handler(req, res) {
         updated_at: now,
       };
       if (gameId) payload.game_id = gameId;
-      tasks.push(supa.from('powerups').upsert(payload).catch(() => ({ error: null })));
+      tasks.push(upsertReturning(supabase, 'powerups', payload, { onConflict: 'game_slug,channel' }).catch(() => null));
     }
 
     if (tasks.length) {
-      const results = await Promise.all(tasks);
-      const failure = results.find((result) => result?.error);
-      if (failure && failure.error) {
-        throw failure.error;
-      }
+      await Promise.all(tasks);
     }
 
     return res.status(200).json({ ok: true, slug, updated_at: now });
