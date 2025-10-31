@@ -1,4 +1,15 @@
-import { createClient } from '@supabase/supabase-js';
+import supabaseStub from '../../../packages/supabase-js-stub/dist/index.cjs';
+
+const createClient =
+  typeof supabaseStub?.createClient === 'function'
+    ? supabaseStub.createClient
+    : typeof supabaseStub?.default?.createClient === 'function'
+    ? supabaseStub.default.createClient
+    : null;
+
+if (typeof createClient !== 'function') {
+  throw new Error('Supabase client stub is unavailable');
+}
 
 export function browserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -1,4 +1,4 @@
-import { serverClient } from '../../lib/supabaseClient';
+import { serverClient } from '../../lib/supabaseClient.js';
 
 function normalizeChannel(value, fallback = 'draft') {
   const raw = typeof value === 'string' ? value : Array.isArray(value) ? value[0] : fallback;

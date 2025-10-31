@@ -1,29 +1,22 @@
-// [Codex note] Single "Saved Games" dropdown with instant load & URL sync.
+// Unified "Saved Games" dropdown (Published / Drafts / Other) + Default
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 
 const S = {
-  label: {
-    display: 'block',
-    fontSize: 12,
-    fontWeight: 600,
-    marginBottom: 6,
-    color: '#111827',
-  },
-  help: { fontSize: 12, opacity: 0.7, marginTop: 6 },
+  label: { display:'block', fontSize:12, fontWeight:600, marginBottom:6 },
+  help: { fontSize:12, opacity:0.7, marginTop:6 },
   select: {
-    width: '100%',
-    maxWidth: 760,
-    border: '1px solid #D1D5DB',
-    borderRadius: 10,
-    padding: '10px 12px',
-    background: 'transparent',
-    outline: 'none',
-    color: '#111827',
-    opacity: 1,
-    filter: 'none',
+    width:'100%', maxWidth:760, border:'1px solid #D1D5DB', borderRadius:10,
+    padding:'10px 12px', background:'transparent', outline:'none'
   },
 };
+
+function normalizeChannel(value) {
+  const next = String(value || '').toLowerCase();
+  if (next === 'published') return 'published';
+  if (next === 'draft') return 'draft';
+  return 'other';
+}
 
 export default function SavedGamesSelect() {
   const router = useRouter();
@@ -54,26 +47,30 @@ export default function SavedGamesSelect() {
     return g;
   }, [items]);
 
-  async function selectGame(slug, channel) {
-    // Prefetch full payload for instant UI update
-    try {
-      const r = await fetch(`/api/games/one?slug=${encodeURIComponent(slug)}&channel=${encodeURIComponent(channel)}`);
-      const j = await r.json();
-      if (j?.ok && j.game) {
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.setItem('admin:lastSelection', JSON.stringify(j.game));
-        }
-        // Fire a custom event some parts of the UI can listen to for immediate hydration
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('AdminGameSelected', { detail: j.game }));
-        }
-      }
-    } catch {}
+  const activeChannel = useMemo(
+    () => normalizeChannel(router?.query?.channel || 'draft'),
+    [router?.query?.channel],
+  );
 
-    // Update URL (no shallow to force all data-effects to re-run if they rely on router)
-    const q = { ...router.query, game: slug, channel };
-    delete q.mission; // avoid stale mission when switching
-    router.push({ pathname: router.pathname, query: q }, undefined, { shallow: false });
+  const selectedValue = useMemo(() => {
+    const slug = typeof router?.query?.game === 'string' && router.query.game.trim()
+      ? router.query.game.trim()
+      : '';
+    if (!slug) return '';
+    if (slug === 'default') return '__default__';
+
+    const preferredKey = `${slug}::${activeChannel}`;
+    if (items.some(it => `${it.slug}::${it.channel}` === preferredKey)) return preferredKey;
+
+    const fallback = items.find(it => it.slug === slug);
+    return fallback ? `${fallback.slug}::${fallback.channel}` : '';
+  }, [activeChannel, items, router?.query?.game]);
+
+  function openGame(slug, channel) {
+    const q = { ...router.query, game: slug };
+    if (channel) q.channel = channel; else delete q.channel;
+    delete q.mission; // avoid stale mission selection on switch
+    router.push({ pathname: router.pathname, query: q }, undefined, { shallow: true });
   }
 
   return (
@@ -81,12 +78,12 @@ export default function SavedGamesSelect() {
       <label style={S.label}>Saved Games</label>
       <select
         style={S.select}
-        defaultValue=""
+        value={selectedValue}
         disabled={loading || items.length === 0}
         onChange={(e) => {
           const val = e.target.value;
           if (!val) return;
-          if (val === '__default__') return selectGame('default', 'draft');
+          if (val === '__default__') return openGame('default','draft');
           const [slug, channel] = val.split('::');
           selectGame(slug, channel || 'draft');
         }}
