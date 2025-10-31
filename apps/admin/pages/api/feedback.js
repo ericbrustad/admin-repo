@@ -1,4 +1,4 @@
-import { supaService } from '../../lib/supabase/server.js';
+import { serverClient } from '../../lib/supabaseClient';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,9 +6,9 @@ export default async function handler(req, res) {
     return res.status(405).end('Method Not Allowed');
   }
 
-  let supa;
+  let supabase;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
     return res.status(500).json({ ok: false, error: error?.message || 'Supabase configuration missing' });
   }
@@ -20,7 +20,9 @@ export default async function handler(req, res) {
     }
 
     const safePayload = typeof payload === 'object' && payload !== null ? payload : { value: payload };
-    const { error } = await supa.from('feedback').insert({ game_slug, kind, payload: safePayload });
+    const { error } = await supabase
+      .from('feedback')
+      .insert({ game_slug, kind, payload: safePayload });
     if (error) {
       throw error;
     }

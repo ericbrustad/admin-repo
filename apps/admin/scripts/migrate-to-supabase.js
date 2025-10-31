@@ -4,8 +4,11 @@ const path = require('path');
 
 async function loadSupabase() {
   try {
-    const mod = await import('../lib/supabase/server.js');
-    return mod.supaService();
+    const mod = await import('../lib/supabaseClient.js');
+    if (!mod?.serverClient) {
+      throw new Error('serverClient export not found');
+    }
+    return mod.serverClient();
   } catch (error) {
     throw new Error(`Failed to initialize Supabase client: ${error?.message || error}`);
   }
@@ -44,24 +47,24 @@ async function upsertGame(supa, slug, config, missionsDraft, missionsPublished) 
       map: config?.map || {},
       config,
       updated_at: now,
-    }),
+    }, { onConflict: 'slug,channel' }).select(),
     supa.from('missions').upsert({
       game_slug: slug,
       channel: 'draft',
       items: missionsDraft,
       updated_at: now,
-    }),
+    }, { onConflict: 'game_slug,channel' }).select(),
     supa.from('missions').upsert({
       game_slug: slug,
       channel: 'published',
       items: missionsPublished,
       updated_at: now,
-    }),
+    }, { onConflict: 'game_slug,channel' }).select(),
     supa.from('devices').upsert({
       game_slug: slug,
       items: devices,
       updated_at: now,
-    }),
+    }, { onConflict: 'game_slug' }).select(),
   ]);
 
   const failure = results.find((result) => result?.error);

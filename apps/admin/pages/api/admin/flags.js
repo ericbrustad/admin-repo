@@ -1,5 +1,4 @@
-import { supaService } from '../../../lib/supabase/server.js';
-import { upsertReturning } from '../../../lib/supabase/upsertReturning.js';
+import { serverClient } from '../../../lib/supabaseClient';
 
 const DEFAULTS = {
   game_enabled: true,
@@ -19,9 +18,9 @@ function envBool(name, fallback) {
   return fallback;
 }
 
-async function readFlagsFromDb(supa) {
+async function readFlagsFromDb(supabase) {
   try {
-    const { data, error } = await supa.from('admin_flags').select('key,value');
+    const { data, error } = await supabase.from('admin_flags').select('key, value');
     if (error) return { ok: false, error };
     const flags = Object.create(null);
     for (const row of data || []) {
@@ -34,23 +33,26 @@ async function readFlagsFromDb(supa) {
   }
 }
 
-async function writeFlagsToDb(supa, partial) {
+async function writeFlagsToDb(supabase, partial) {
   const now = new Date().toISOString();
   const rows = Object.entries(partial).map(([key, value]) => ({
     key,
     value,
     updated_at: now,
   }));
-  for (const payload of rows) {
-    await upsertReturning(supa, 'admin_flags', payload, { onConflict: 'key' });
-  }
+  if (!rows.length) return { ok: true };
+  const { error } = await supabase
+    .from('admin_flags')
+    .upsert(rows, { onConflict: 'key' })
+    .select();
+  if (error) throw error;
   return { ok: true };
 }
 
 export default async function handler(req, res) {
-  let supa = null;
+  let supabase = null;
   try {
-    supa = supaService();
+    supabase = serverClient();
   } catch (error) {
     if (req.method === 'POST') {
       return res.status(500).json({ ok: false, error: error?.message || 'Supabase not configured' });
@@ -59,8 +61,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     let dbFlags = {};
-    if (supa) {
-      const read = await readFlagsFromDb(supa);
+    if (supabase) {
+      const read = await readFlagsFromDb(supabase);
       if (read.ok && read.flags) dbFlags = read.flags;
     }
     const merged = {
@@ -78,7 +80,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    if (!supa) {
+    if (!supabase) {
       return res.status(500).json({ ok: false, error: 'Supabase not configured' });
     }
     const body = req.body && typeof req.body === 'object' ? req.body : {};
@@ -94,7 +96,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'No valid flags provided' });
     }
     try {
-      await writeFlagsToDb(supa, payload);
+      await writeFlagsToDb(supabase, payload);
       return res.status(200).json({ ok: true });
     } catch (error) {
       return res.status(500).json({ ok: false, error: error?.message || 'Failed to save flags' });

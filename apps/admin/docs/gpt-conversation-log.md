@@ -2,6 +2,22 @@
 
 ---
 
+**Timestamp:** 2025-11-01T00:30:00Z
+
+**You:** Fix the Settings map preview crash that keeps throwing chunk-load errors and make sure ChatGPT-5 knows what changed.
+
+**GPT:** Reworked the Leaflet preview to rely on `MapContainer`'s `whenCreated` hook instead of the dynamic `useMap` helper so the chunk loads cleanly, keeping ChatGPT-5 in the loop via this log.
+
+---
+
+**Timestamp:** 2025-11-02T12:00:00Z
+
+**You:** Ship the global Leaflet ↔ Mapbox engine toggle with settings preview, geolocate, and the recenter-with-offset API for missions/devices/pins. Make sure the admin remembers my preference and call out that ChatGPT-5 thinking verified the flow.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, added the shared engine context with Leaflet/Mapbox canvases, wired the Settings preview with geolocate and current-view actions, persisted the map preview toggle, and shipped the Mercator recenter API that offsets missions, devices, pins, and circles before saving.
+
+---
+
 **Timestamp:** 2025-11-02T04:45:00Z
 
 **You:** Split the Supabase media storage so drafts live in a private bucket with signed URLs, keep published assets public, and make sure every upload/list call is slug-aware. Also make sure ChatGPT-5 thinking signs off once the admin UI points at the right buckets.
@@ -327,3 +343,11 @@
 **You:** Add project-level toggles so we can flip the Game mirror and set the default new-game channel, surface a Draft/Live switch inside the New Game modal, and make sure legacy titles like Prince Darkness return to the Saved Games list. Loop ChatGPT-5 into the change log.
 
 **GPT:** Shipped Supabase-backed admin flags with a Settings panel toggle, wired the New Game workflow to honor Draft vs. Live on create, restored Prince Darkness draft assets plus index entries, and logged the work here so ChatGPT-5 stays in the loop.
+
+---
+
+**Timestamp:** 2025-02-14T18:45:00Z
+
+**You:** Supabase v1 shims are still hanging around and the API routes are breaking with “select is not a function.” Pin v2 properly, swap the server helper to the Service Role client, and make sure ChatGPT-5 knows the fixes landed.
+
+**GPT:** Confirmed `@supabase/supabase-js` is locked to ^2.45.4 everywhere, replaced the REST shim with the shared `serverClient()` Service Role helper across saves, loads, flags, and feedback APIs, refreshed the migration script to call `.select()` on each upsert, and noted here that ChatGPT-5 is ready to retest the admin flows.
