@@ -1,0 +1,42 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Prince Darkness",
+    "type": "Horror",
+    "tags": [
+      "prince-darkness"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "appearance": {
+    "fontFamily": "\"Creepster\", \"Segoe UI\", cursive",
+    "fontSizePx": 26,
+    "fontColor": "#ffedd5",
+    "textBgColor": "#1b0f1d",
+    "textBgOpacity": 0.7,
+    "screenBgColor": "#2a1130",
+    "screenBgOpacity": 0.58,
+    "screenBgImage": "https://images.unsplash.com/photo-1508882668657-372ac7f1d1b1?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "halloween-midnight"
+}

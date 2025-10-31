@@ -1,0 +1,9 @@
+<!-- Esxape Ride • Added by Codex for Eric on 2025-10-29: kebab-case alias for "Trivia 2" -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-label="trivia-2">
+  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="4"/>
+    <path d="M12 15v.01"/>
+    <path d="M9.5 8.75a2.5 2.5 0 1 1 4.2 1.8c-.7.6-1.2 1-1.2 1.95"/>
+  </g>
+  <text x="17.2" y="18.2" font-size="8" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" fill="currentColor" text-anchor="middle">2</text>
+</svg>

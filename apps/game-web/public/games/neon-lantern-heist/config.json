@@ -1,0 +1,185 @@
+{
+  "splash": {
+    "enabled": false,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Neon Lantern Heist",
+    "type": "Heist",
+    "tags": [
+      "neon-lantern-heist"
+    ],
+    "coverImage": "/media/mediapool/Images/covers/neon-lantern-heist.svg",
+    "shortDescription": "Race through midnight markets to reclaim the stolen lantern core before it vanishes offshore.",
+    "longDescription": "A glow-soaked caper weaving between vendors, rooftop relays, and contraband ferries. Balance stealth with speed as you outmaneuver rival crews under the lantern lights.",
+    "deployEnabled": true
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 35,
+    "alertMinutes": 8
+  },
+  "textRules": [
+    "Do not unplug the actual market lighting — use the provided switches.",
+    "Return the encoded lantern core to storage between bookings."
+  ],
+  "devices": [
+    {
+      "id": "lantern-broadcast",
+      "title": "Lantern Broadcast",
+      "type": "signal",
+      "iconKey": "lumen-halo",
+      "pickupRadius": 70,
+      "effectSeconds": 140,
+      "lat": 38.9138,
+      "lng": -77.0288,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/lumen-halo.svg",
+        "actionLabel": "Project festival beacon",
+        "actionThumbnail": "/media/mediapool/Images/icons/lumen-halo.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": "m11"
+      }
+    },
+    {
+      "id": "holo-zipline",
+      "title": "Holo Zipline",
+      "type": "relay",
+      "iconKey": "voyager-dial",
+      "pickupRadius": 80,
+      "effectSeconds": 160,
+      "lat": 38.9172,
+      "lng": -77.0411,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "actionLabel": "Cue rooftop run",
+        "actionThumbnail": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": "m12"
+      }
+    },
+    {
+      "id": "market-vault",
+      "title": "Market Vault",
+      "type": "lockdown",
+      "iconKey": "quantum-anchor",
+      "pickupRadius": 85,
+      "effectSeconds": 200,
+      "lat": 38.9084,
+      "lng": -77.0502,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "actionLabel": "Seal contraband hatch",
+        "actionThumbnail": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": ""
+      }
+    }
+  ],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [
+      {
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png",
+        "label": "Lantern Token"
+      }
+    ],
+    "penaltiesPool": [
+      {
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png",
+        "label": "Market Smoke"
+      }
+    ]
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "lantern-clue",
+        "name": "Lantern Clue",
+        "url": "/media/mediapool/Images/icons/lumen-halo.svg"
+      }
+    ],
+    "devices": [
+      {
+        "key": "aurora-beacon",
+        "name": "Aurora Beacon",
+        "url": "/media/mediapool/Images/icons/aurora-beacon.svg"
+      },
+      {
+        "key": "lumen-halo",
+        "name": "Lumen Halo",
+        "url": "/media/mediapool/Images/icons/lumen-halo.svg"
+      },
+      {
+        "key": "quantum-anchor",
+        "name": "Quantum Anchor",
+        "url": "/media/mediapool/Images/icons/quantum-anchor.svg"
+      },
+      {
+        "key": "chrono-switch",
+        "name": "Chrono Switch",
+        "url": "/media/mediapool/Images/icons/chrono-switch.svg"
+      },
+      {
+        "key": "voyager-dial",
+        "name": "Voyager Dial",
+        "url": "/media/mediapool/Images/icons/voyager-dial.svg"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "golden-coin",
+        "name": "Golden Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Pacifico\", \"Segoe UI\", cursive",
+    "fontSizePx": 28,
+    "fontColor": "#f8fafc",
+    "textBgColor": "#0f172a",
+    "textBgOpacity": 0.58,
+    "screenBgColor": "#0b1120",
+    "screenBgOpacity": 0.62,
+    "screenBgImage": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "middle",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "party-neon",
+  "appearanceTone": "light",
+  "mediaTriggers": {
+    "enabled": false,
+    "actionType": "media",
+    "actionTarget": "",
+    "actionLabel": "",
+    "actionThumbnail": "",
+    "triggerDeviceId": "",
+    "triggerDeviceLabel": "",
+    "triggeredResponseKey": "",
+    "triggeredMissionId": ""
+  },
+  "map": {
+    "centerLat": 38.9138,
+    "centerLng": -77.037,
+    "defaultZoom": 14
+  },
+  "geofence": {
+    "mode": "test"
+  }
+}

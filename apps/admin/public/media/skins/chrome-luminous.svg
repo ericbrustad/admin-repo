@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="chromeBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e6eef9" />
+      <stop offset="100%" stop-color="#c9d9ec" />
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#9eb7d4" stop-opacity="0.2" />
+    </linearGradient>
+    <radialGradient id="glowChrome" cx="0.4" cy="0.25" r="0.7">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#chromeBase)" />
+  <rect width="1600" height="900" fill="url(#shine)" />
+  <rect width="1600" height="900" fill="url(#glowChrome)" />
+  <path d="M0 760c220-50 320-110 520-100s420 130 620 120 280-96 460-140v260H0z" fill="#b7cdea" opacity="0.32" />
+  <path d="M200 150h1200l-80 60H280z" fill="#ffffff" opacity="0.25" />
+</svg>

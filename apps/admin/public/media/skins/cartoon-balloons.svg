@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="candy" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f9e0ff" />
+      <stop offset="100%" stop-color="#e0c0ff" />
+    </linearGradient>
+    <radialGradient id="balloon" cx="0.5" cy="0.35" r="0.55">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff9ade" />
+      <stop offset="100%" stop-color="#ff5abf" />
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#79d6ff" />
+      <stop offset="100%" stop-color="#3fa8ff" />
+    </linearGradient>
+    <linearGradient id="yellow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe585" />
+      <stop offset="100%" stop-color="#ffc14d" />
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#candy)" />
+  <rect width="1600" height="900" fill="url(#balloon)" />
+  <g opacity="0.75">
+    <ellipse cx="240" cy="220" rx="120" ry="160" fill="url(#pink)" />
+    <ellipse cx="520" cy="180" rx="110" ry="150" fill="url(#blue)" />
+    <ellipse cx="820" cy="230" rx="130" ry="170" fill="url(#yellow)" />
+    <ellipse cx="1140" cy="200" rx="120" ry="160" fill="url(#blue)" />
+    <ellipse cx="1400" cy="240" rx="110" ry="150" fill="url(#pink)" />
+  </g>
+  <path d="M0 720c220-60 340-100 500-80s340 140 520 130 340-110 580-160v290H0z" fill="#d5a9ff" opacity="0.45" />
+</svg>

@@ -1,0 +1,72 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "test",
+    "type": "Mystery",
+    "tags": [
+      "test"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [
+    {
+      "id": "d01",
+      "title": "SMOKE",
+      "type": "smoke",
+      "iconKey": "",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.802576,
+      "lng": -93.363619
+    }
+  ],
+  "powerups": [
+    {
+      "id": "d01",
+      "title": "SMOKE",
+      "type": "smoke",
+      "iconKey": "",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.802576,
+      "lng": -93.363619
+    }
+  ],
+  "media": {},
+  "icons": {
+    "missions": [
+      {
+        "key": "missions-1",
+        "name": "",
+        "url": "/media/mediapool/Images/icons/1759643917568-SMOKE_BOMB.png"
+      }
+    ],
+    "devices": [],
+    "rewards": []
+  },
+  "appearance": {
+    "fontFamily": "\"Titillium Web\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 24,
+    "fontColor": "#1b1d2a",
+    "textBgColor": "#f5f6ff",
+    "textBgOpacity": 0.7,
+    "screenBgColor": "#dfe2f3",
+    "screenBgOpacity": 0.52,
+    "screenBgImage": "/media/skins/chrome-luminous.svg",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "chrome-luminous"
+}

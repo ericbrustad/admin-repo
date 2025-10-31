@@ -1,0 +1,81 @@
+// components/MultipleChoiceEditor.jsx
+import React from 'react';
+
+/**
+ * A–E inputs with radio to select the correct answer.
+ * Emits: { choices: string[], correctIndex?: number }
+ */
+export default function MultipleChoiceEditor({ value, correctIndex, onChange }) {
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  const choices = Array.isArray(value) ? [...value] : [];
+  while (choices.length < 5) choices.push('');
+
+  const setChoice = (i, text) => {
+    const next = [...choices];
+    next[i] = text;
+    let nextCorrect = correctIndex;
+    if (!text.trim() && correctIndex === i) nextCorrect = undefined; // can't mark empty as correct
+    onChange({ choices: trimTrailingEmpty(next), correctIndex: nextCorrect });
+  };
+
+  const setCorrect = (i) => {
+    if (!choices[i]?.trim()) return; // don't allow selecting an empty line
+    onChange({ choices: trimTrailingEmpty(choices), correctIndex: i });
+  };
+
+  const nonEmpty = choices.filter((s) => s?.trim()).length;
+
+  return (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ fontWeight: 600, marginBottom: 6 }}>Choices (A–E)</div>
+      <div style={{ display: 'grid', gap: 8 }}>
+        {letters.map((L, i) => (
+          <label
+            key={i}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '24px 1fr 24px',
+              alignItems: 'center',
+              gap: 8,
+              border: '1px solid #333',
+              borderRadius: 6,
+              padding: '6px 8px',
+              background: 'transparent',
+              color: 'inherit',
+            }}
+          >
+            <span style={{ fontWeight: 700, opacity: 0.8 }}>{L}.</span>
+            <input
+              type="text"
+              value={choices[i]}
+              onChange={(e) => setChoice(i, e.target.value)}
+              placeholder={`Option ${L}`}
+              style={{ width: '100%', padding: 6, border: '1px solid #444', borderRadius: 6, background: 'transparent', color: 'inherit' }}
+            />
+            <input
+              type="radio"
+              name="mc-correct"
+              checked={correctIndex === i}
+              onChange={() => setCorrect(i)}
+              title="Mark as correct"
+            />
+          </label>
+        ))}
+      </div>
+
+      <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+        {nonEmpty < 2 ? (
+          <span>Enter at least <b>two</b> choices.</span>
+        ) : typeof correctIndex !== 'number' ? (
+          <span>Select the <b>correct</b> answer.</span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function trimTrailingEmpty(arr) {
+  let n = arr.length;
+  while (n > 0 && !(arr[n - 1] && arr[n - 1].trim())) n--;
+  return arr.slice(0, n).map((s) => (s == null ? '' : s));
+}

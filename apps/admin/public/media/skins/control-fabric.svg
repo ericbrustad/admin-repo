@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="fabricBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f4f8fb" />
+      <stop offset="100%" stop-color="#dbe4f1" />
+    </linearGradient>
+    <pattern id="weave" width="48" height="48" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+      <rect width="48" height="48" fill="none" />
+      <path d="M0 0h48M0 24h48" stroke="#c6d3e0" stroke-width="3" opacity="0.45" />
+      <path d="M0 0v48M24 0v48" stroke="#e4ecf6" stroke-width="3" opacity="0.35" />
+    </pattern>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.65">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+      <stop offset="70%" stop-color="#ffffff" stop-opacity="0.0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#fabricBase)" />
+  <rect width="1600" height="900" fill="url(#weave)" />
+  <rect width="1600" height="900" fill="url(#glow)" />
+  <rect width="1600" height="900" fill="none" stroke="#a6b6c9" stroke-width="12" opacity="0.35" />
+</svg>

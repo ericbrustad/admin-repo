@@ -1,0 +1,33 @@
+<svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="twilight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1120" />
+      <stop offset="50%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <radialGradient id="sun" cx="82%" cy="18%" r="35%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.9)" />
+      <stop offset="60%" stop-color="rgba(59,130,246,0.45)" />
+      <stop offset="100%" stop-color="rgba(11,17,32,0)" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#twilight)" />
+  <rect width="640" height="360" fill="url(#sun)" />
+  <g fill="rgba(15,23,42,0.7)">
+    <path d="M0 300 Q120 240 240 290 T480 300 T640 280 L640 360 L0 360 Z" />
+  </g>
+  <g opacity="0.45" stroke="#fef3c7" stroke-width="2" fill="none">
+    <circle cx="150" cy="130" r="34" />
+    <circle cx="150" cy="130" r="50" />
+    <circle cx="150" cy="130" r="66" />
+  </g>
+  <text x="64" y="150" fill="#f8fafc" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="40" font-weight="700" letter-spacing="0.12em">
+    CHRONORIFT
+  </text>
+  <text x="64" y="196" fill="#dbeafe" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="30" font-weight="600" letter-spacing="0.38em">
+    COVE
+  </text>
+  <text x="66" y="236" fill="#bfdbfe" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="18" letter-spacing="0.28em">
+    TIDAL TIME RESCUE
+  </text>
+</svg>

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+public/game/node_modules/
+game/node_modules/
+.env.local
+.vercel
+.DS_Store
+.yarn/*
+!.yarn/releases
+!.yarn/cache
+!.yarn/plugins
+!.yarn/patches
+
+node_modules/

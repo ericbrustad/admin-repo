@@ -1,0 +1,666 @@
+{
+  "version": 3,
+  "updatedAt": "2025-10-21T16:04:40.992Z",
+  "items": [
+    {
+      "id": "supabase-ar-overlay-erix-panda-complete",
+      "name": "eRIX ESCAPE RIDE PANDA COMPLETE",
+      "fileName": "eRIX ESCAPE RIDE PANDA COMPLETE.png",
+      "type": "ar-overlay",
+      "folder": "mediapool/AR Overlay",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage. Repo retains metadata only per zero-binary policy.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/AR Overlay/eRIX ESCAPE RIDE PANDA COMPLETE.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/ar-overlay.svg",
+      "url": "/media/placeholders/ar-overlay.svg",
+      "placeholder": {
+        "kind": "ar-overlay",
+        "label": "AR Overlay Placeholder",
+        "path": "public/media/placeholders/ar-overlay.svg",
+        "url": "/media/placeholders/ar-overlay.svg"
+      }
+    },
+    {
+      "id": "supabase-ar-overlay-erix-landscape",
+      "name": "Erix Escape ride overlay landscape",
+      "fileName": "Erix Escape ride overlay landscape.png",
+      "type": "ar-overlay",
+      "folder": "mediapool/AR Overlay",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/AR Overlay/Erix Escape ride overlay landscape.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/ar-overlay.svg",
+      "url": "/media/placeholders/ar-overlay.svg",
+      "placeholder": {
+        "kind": "ar-overlay",
+        "label": "AR Overlay Placeholder",
+        "path": "public/media/placeholders/ar-overlay.svg",
+        "url": "/media/placeholders/ar-overlay.svg"
+      }
+    },
+    {
+      "id": "supabase-ar-overlay-erix-landscape-small",
+      "name": "Erix Escape ride overlay landscapesmaller",
+      "fileName": "Erix Escape ride overlay landscapesmaller.png",
+      "type": "ar-overlay",
+      "folder": "mediapool/AR Overlay",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/AR Overlay/Erix Escape ride overlay landscapesmaller.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/ar-overlay.svg",
+      "url": "/media/placeholders/ar-overlay.svg",
+      "placeholder": {
+        "kind": "ar-overlay",
+        "label": "AR Overlay Placeholder",
+        "path": "public/media/placeholders/ar-overlay.svg",
+        "url": "/media/placeholders/ar-overlay.svg"
+      }
+    },
+    {
+      "id": "supabase-ar-overlay-erix-square",
+      "name": "erix square",
+      "fileName": "erix square.png",
+      "type": "ar-overlay",
+      "folder": "mediapool/AR Overlay",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/AR Overlay/erix square.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/ar-overlay.svg",
+      "url": "/media/placeholders/ar-overlay.svg",
+      "placeholder": {
+        "kind": "ar-overlay",
+        "label": "AR Overlay Placeholder",
+        "path": "public/media/placeholders/ar-overlay.svg",
+        "url": "/media/placeholders/ar-overlay.svg"
+      }
+    },
+    {
+      "id": "supabase-image-smoke-bomb-a",
+      "name": "SMOKE_BOMB",
+      "fileName": "1759645884960-SMOKE_BOMB.png",
+      "type": "image",
+      "folder": "mediapool/Images",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/1759645884960-SMOKE_BOMB.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/image.svg",
+      "url": "/media/placeholders/image.svg",
+      "placeholder": {
+        "kind": "image",
+        "label": "Image Placeholder",
+        "path": "public/media/placeholders/image.svg",
+        "url": "/media/placeholders/image.svg"
+      }
+    },
+    {
+      "id": "supabase-image-smoke-bomb-b",
+      "name": "SMOKE_BOMB",
+      "fileName": "1759645910730-SMOKE_BOMB.png",
+      "type": "image",
+      "folder": "mediapool/Images",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/1759645910730-SMOKE_BOMB.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/image.svg",
+      "url": "/media/placeholders/image.svg",
+      "placeholder": {
+        "kind": "image",
+        "label": "Image Placeholder",
+        "path": "public/media/placeholders/image.svg",
+        "url": "/media/placeholders/image.svg"
+      }
+    },
+    {
+      "id": "supabase-image-signal-jammer",
+      "name": "sIGNAL_jAMMER",
+      "fileName": "1759645755326-sIGNAL_jAMMER.jpg",
+      "type": "image",
+      "folder": "mediapool/Images",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/1759645755326-sIGNAL_jAMMER.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/image.svg",
+      "url": "/media/placeholders/image.svg",
+      "placeholder": {
+        "kind": "image",
+        "label": "Image Placeholder",
+        "path": "public/media/placeholders/image.svg",
+        "url": "/media/placeholders/image.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-black-magic-book",
+      "name": "black_magic_book_-_Copy",
+      "fileName": "1760531435763-black_magic_book_-_Copy.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1760531435763-black_magic_book_-_Copy.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-panda-cute",
+      "name": "panda_cute",
+      "fileName": "1759945867484-panda_cute.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1759945867484-panda_cute.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-casper",
+      "name": "casper",
+      "fileName": "1759944234519-casper.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1759944234519-casper.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-diamond-complete-a",
+      "name": "Diamond_complete2",
+      "fileName": "1759973022794-Diamond_complete2.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1759973022794-Diamond_complete2.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-diamond-complete-b",
+      "name": "Diamond_complete2",
+      "fileName": "1759945844073-Diamond_complete2.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1759945844073-Diamond_complete2.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-upload-map",
+      "name": "MAP",
+      "fileName": "1760528512543-MAP.PNG",
+      "type": "image",
+      "folder": "mediapool/Images/uploads",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/uploads/1760528512543-MAP.PNG"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/upload.svg",
+      "url": "/media/placeholders/upload.svg",
+      "placeholder": {
+        "kind": "upload",
+        "label": "Upload Placeholder",
+        "path": "public/media/placeholders/upload.svg",
+        "url": "/media/placeholders/upload.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-coach-fleet",
+      "name": "erix_coach_and_car_fleet_QR",
+      "fileName": "1760231568080-erix_coach_and_car_fleet_QR.jpg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/1760231568080-erix_coach_and_car_fleet_QR.jpg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-map",
+      "name": "Map",
+      "fileName": "1760529588317-Map.png",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/1760529588317-Map.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-aurora-beacon",
+      "name": "aurora-beacon",
+      "fileName": "aurora-beacon.svg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/aurora-beacon.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-chrono-switch",
+      "name": "chrono-switch",
+      "fileName": "chrono-switch.svg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/chrono-switch.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-lumen-halo",
+      "name": "lumen-halo",
+      "fileName": "lumen-halo.svg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/lumen-halo.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-quantum-anchor",
+      "name": "quantum-anchor",
+      "fileName": "quantum-anchor.svg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/quantum-anchor.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-icon-voyager-dial",
+      "name": "voyager-dial",
+      "fileName": "voyager-dial.svg",
+      "type": "image",
+      "folder": "mediapool/Images/icons",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/icons/voyager-dial.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/icon.svg",
+      "url": "/media/placeholders/icon.svg",
+      "placeholder": {
+        "kind": "icon",
+        "label": "Icon Placeholder",
+        "path": "public/media/placeholders/icon.svg",
+        "url": "/media/placeholders/icon.svg"
+      }
+    },
+    {
+      "id": "supabase-cover-chronorift-cove",
+      "name": "Chronorift Cove",
+      "fileName": "chronorift-cove.svg",
+      "type": "image",
+      "folder": "mediapool/Images/covers",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/covers/chronorift-cove.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/cover.svg",
+      "url": "/media/placeholders/cover.svg",
+      "placeholder": {
+        "kind": "cover",
+        "label": "Cover Placeholder",
+        "path": "public/media/placeholders/cover.svg",
+        "url": "/media/placeholders/cover.svg"
+      }
+    },
+    {
+      "id": "supabase-cover-neon-lantern-heist",
+      "name": "Neon Lantern Heist",
+      "fileName": "neon-lantern-heist.svg",
+      "type": "image",
+      "folder": "mediapool/Images/covers",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/covers/neon-lantern-heist.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/cover.svg",
+      "url": "/media/placeholders/cover.svg",
+      "placeholder": {
+        "kind": "cover",
+        "label": "Cover Placeholder",
+        "path": "public/media/placeholders/cover.svg",
+        "url": "/media/placeholders/cover.svg"
+      }
+    },
+    {
+      "id": "supabase-cover-starfield-station-break",
+      "name": "Starfield Station Break",
+      "fileName": "starfield-station-break.svg",
+      "type": "image",
+      "folder": "mediapool/Images/covers",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/covers/starfield-station-break.svg"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/cover.svg",
+      "url": "/media/placeholders/cover.svg",
+      "placeholder": {
+        "kind": "cover",
+        "label": "Cover Placeholder",
+        "path": "public/media/placeholders/cover.svg",
+        "url": "/media/placeholders/cover.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-clue-green",
+      "name": "CLUEgreen",
+      "fileName": "CLUEgreen.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/CLUEgreen.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-golden-coin",
+      "name": "GOLDEN COIN",
+      "fileName": "GOLDEN COIN.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/GOLDEN COIN.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-robot",
+      "name": "ROBOT1small",
+      "fileName": "ROBOT1small.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/ROBOT1small.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-smoke-bomb",
+      "name": "SMOKE BOMB",
+      "fileName": "SMOKE BOMB.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/SMOKE BOMB.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-evidence",
+      "name": "evidence 2",
+      "fileName": "evidence 2.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/evidence 2.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-trivia-icon",
+      "name": "trivia icon",
+      "fileName": "trivia icon.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/trivia icon.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    },
+    {
+      "id": "supabase-bundle-trivia-yellow",
+      "name": "trivia yellow",
+      "fileName": "trivia yellow.png",
+      "type": "image",
+      "folder": "mediapool/Images/bundles",
+      "status": "supabase",
+      "notes": "Stored in Supabase storage.",
+      "supabase": {
+        "bucket": "admin-media",
+        "path": "mediapool/Images/bundles/trivia yellow.png"
+      },
+      "path": "",
+      "thumbUrl": "/media/placeholders/bundle.svg",
+      "url": "/media/placeholders/bundle.svg",
+      "placeholder": {
+        "kind": "bundle",
+        "label": "Bundle Placeholder",
+        "path": "public/media/placeholders/bundle.svg",
+        "url": "/media/placeholders/bundle.svg"
+      }
+    }
+  ]
+}

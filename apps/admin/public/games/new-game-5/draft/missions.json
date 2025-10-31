@@ -1,0 +1,69 @@
+{
+  "id": "msuite_esx",
+  "version": "0.6.26",
+  "flow": {
+    "mode": "linear",
+    "start": "m01"
+  },
+  "missions": [
+    {
+      "id": "m01",
+      "title": "New Mission",
+      "type": "short_answer",
+      "rewards": {
+        "points": 25
+      },
+      "content": {
+        "question": "hi",
+        "answer": "hello",
+        "acceptable": "yes",
+        "mediaUrl": "",
+        "geofenceEnabled": true,
+        "lat": 44.9778,
+        "lng": -93.265,
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": false,
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "showContinue": true
+    },
+    {
+      "id": "m02",
+      "title": "New Mission",
+      "type": "multiple_choice",
+      "iconKey": "trivia",
+      "rewards": {
+        "points": 25
+      },
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "content": {
+        "question": "S S S",
+        "choices": [
+          "SS",
+          "SS",
+          "SS"
+        ],
+        "correctIndex": 0,
+        "mediaUrl": "",
+        "geofenceEnabled": false,
+        "lat": "",
+        "lng": "",
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": false,
+      "showContinue": true
+    }
+  ]
+}

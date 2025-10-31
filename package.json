@@ -1,0 +1,30 @@
+{
+  "name": "admin-esxape-ride",
+  "private": true,
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": "22.x"
+  },
+  "volta": {
+    "node": "22.11.0",
+    "yarn": "1.22.19"
+  },
+  "scripts": {
+    "vercel:info": "node tools/vercel-info.mjs",
+    "dev": "turbo run dev --parallel",
+    "build": "yarn workspace esx-admin-control-panel-map run build && yarn workspace game-web run build",
+    "build:admin": "yarn workspace esx-admin-control-panel-map run build",
+    "build:game": "yarn workspace game-web run build",
+    "build:turbo": "turbo run build"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}

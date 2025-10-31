@@ -1,0 +1,76 @@
+{
+  "id": "msuite_esx",
+  "version": "0.6.26",
+  "flow": {
+    "mode": "linear",
+    "start": "m01"
+  },
+  "missions": [
+    {
+      "id": "m01",
+      "title": "fly",
+      "type": "short_answer",
+      "rewards": {
+        "points": 25
+      },
+      "content": {
+        "question": "what isup?",
+        "answer": "hello",
+        "acceptable": "yes",
+        "mediaUrl": "",
+        "geofenceEnabled": true,
+        "lat": 44.9778,
+        "lng": -93.265,
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": false,
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "showContinue": true,
+      "iconKey": "trivia"
+    },
+    {
+      "id": "m02",
+      "title": "New Mission",
+      "type": "video",
+      "iconKey": "",
+      "rewards": {
+        "points": 25
+      },
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "content": {
+        "videoUrl": "https://youtu.be/uPx5YKweMVs?si=A-xC9wQGnPaKouLc",
+        "overlayText": "heck yes",
+        "geofenceEnabled": true,
+        "lat": 44.976487,
+        "lng": -93.265621,
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": true,
+      "appearance": {
+        "fontFamily": "Courier New, Courier, monospace",
+        "fontSizePx": 45,
+        "fontColor": "#c7e147",
+        "textBgColor": "#000000",
+        "textBgOpacity": 0,
+        "screenBgColor": "#e60a0a",
+        "screenBgOpacity": 0,
+        "screenBgImage": "",
+        "textAlign": "center",
+        "textVertical": "top"
+      },
+      "showContinue": true
+    }
+  ]
+}

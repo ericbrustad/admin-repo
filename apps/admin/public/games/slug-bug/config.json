@@ -1,0 +1,42 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Slug BUG!",
+    "type": "Arcade",
+    "tags": [
+      "slug-bug"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "appearance": {
+    "fontFamily": "\"Baloo 2\", \"Comic Sans MS\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 30,
+    "fontColor": "#4a256a",
+    "textBgColor": "#fff4ff",
+    "textBgOpacity": 0.7,
+    "screenBgColor": "#f7e4ff",
+    "screenBgOpacity": 0.52,
+    "screenBgImage": "/media/skins/cartoon-parade.svg",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "cartoon-parade"
+}

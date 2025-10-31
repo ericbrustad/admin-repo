@@ -1,0 +1,215 @@
+{
+  "splash": {
+    "enabled": false,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Chronorift Cove",
+    "type": "Adventure",
+    "tags": [
+      "chronorift-cove"
+    ],
+    "coverImage": "/media/mediapool/Images/covers/chronorift-cove.svg",
+    "shortDescription": "Stabilize time-tossed tides and guide explorers through a shimmering coastal rift.",
+    "longDescription": "The cove fractures in waves of time. Activate chrono buoys, anchor the currents, and chart a safe path before the anomaly swallows the harbor.",
+    "deployEnabled": true
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 40,
+    "alertMinutes": 10
+  },
+  "textRules": [
+    "Keep all magnetized tokens in the tide tray when not in use.",
+    "If water props spill, pause the session and notify staff."
+  ],
+  "devices": [
+    {
+      "id": "storm-signal",
+      "title": "Storm Signal",
+      "type": "signal",
+      "iconKey": "aurora-beacon",
+      "pickupRadius": 85,
+      "effectSeconds": 180,
+      "lat": 38.8899,
+      "lng": -77.0091,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/aurora-beacon.svg",
+        "actionLabel": "Flash shoreline beacon",
+        "actionThumbnail": "/media/mediapool/Images/icons/aurora-beacon.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": "c2"
+      }
+    },
+    {
+      "id": "chrono-buoy",
+      "title": "Chrono Buoy",
+      "type": "timer",
+      "iconKey": "chrono-switch",
+      "pickupRadius": 70,
+      "effectSeconds": 150,
+      "lat": 38.8932,
+      "lng": -77.015,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/chrono-switch.svg",
+        "actionLabel": "Stabilize current wave",
+        "actionThumbnail": "/media/mediapool/Images/icons/chrono-switch.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": "c3"
+      }
+    },
+    {
+      "id": "tidal-anchor",
+      "title": "Tidal Anchor",
+      "type": "lockdown",
+      "iconKey": "quantum-anchor",
+      "pickupRadius": 95,
+      "effectSeconds": 220,
+      "lat": 38.8864,
+      "lng": -77.0226,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "actionLabel": "Pin anomaly gate",
+        "actionThumbnail": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": ""
+      }
+    },
+    {
+      "id": "helm-dial",
+      "title": "Helm Dial",
+      "type": "relay",
+      "iconKey": "voyager-dial",
+      "pickupRadius": 75,
+      "effectSeconds": 170,
+      "lat": 38.8961,
+      "lng": -77.0055,
+      "trigger": {
+        "enabled": true,
+        "actionType": "media",
+        "actionTarget": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "actionLabel": "Chart safe heading",
+        "actionThumbnail": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "triggerDeviceId": "",
+        "triggerDeviceLabel": "",
+        "triggeredResponseKey": "",
+        "triggeredMissionId": "c1"
+      }
+    }
+  ],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [
+      {
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png",
+        "label": "Chrono Token"
+      },
+      {
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png",
+        "label": "Seafarer Clue"
+      }
+    ],
+    "penaltiesPool": [
+      {
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png",
+        "label": "Fog Burst"
+      }
+    ]
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "helm-brief",
+        "name": "Helm Brief",
+        "url": "/media/mediapool/Images/icons/voyager-dial.svg"
+      }
+    ],
+    "devices": [
+      {
+        "key": "aurora-beacon",
+        "name": "Aurora Beacon",
+        "url": "/media/mediapool/Images/icons/aurora-beacon.svg"
+      },
+      {
+        "key": "lumen-halo",
+        "name": "Lumen Halo",
+        "url": "/media/mediapool/Images/icons/lumen-halo.svg"
+      },
+      {
+        "key": "quantum-anchor",
+        "name": "Quantum Anchor",
+        "url": "/media/mediapool/Images/icons/quantum-anchor.svg"
+      },
+      {
+        "key": "chrono-switch",
+        "name": "Chrono Switch",
+        "url": "/media/mediapool/Images/icons/chrono-switch.svg"
+      },
+      {
+        "key": "voyager-dial",
+        "name": "Voyager Dial",
+        "url": "/media/mediapool/Images/icons/voyager-dial.svg"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "golden-coin",
+        "name": "Golden Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      },
+      {
+        "key": "clue-green",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Work Sans\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 24,
+    "fontColor": "#0d2a3f",
+    "textBgColor": "#e6f6ff",
+    "textBgOpacity": 0.72,
+    "screenBgColor": "#ccecff",
+    "screenBgOpacity": 0.52,
+    "screenBgImage": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "ocean-tides",
+  "appearanceTone": "light",
+  "mediaTriggers": {
+    "enabled": false,
+    "actionType": "media",
+    "actionTarget": "",
+    "actionLabel": "",
+    "actionThumbnail": "",
+    "triggerDeviceId": "",
+    "triggerDeviceLabel": "",
+    "triggeredResponseKey": "",
+    "triggeredMissionId": ""
+  },
+  "map": {
+    "centerLat": 38.8925,
+    "centerLng": -77.0135,
+    "defaultZoom": 13
+  },
+  "geofence": {
+    "mode": "test"
+  }
+}

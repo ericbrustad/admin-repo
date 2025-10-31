@@ -1,0 +1,64 @@
+{
+  "id": "msuite_neon_lantern_heist",
+  "version": "1.0.0",
+  "flow": { "mode": "linear", "start": "m11" },
+  "missions": [
+    {
+      "id": "m11",
+      "title": "Market Whisper",
+      "type": "short_answer",
+      "iconKey": "lantern-clue",
+      "rewards": { "points": 20 },
+      "content": {
+        "question": "Which stall hides the relay switch after curfew?",
+        "answer": "lotus sweets",
+        "acceptable": "lotus sweets,lotus-sweets",
+        "hint": "The broadcast lantern hums louder near sugary spices.",
+        "mediaUrl": "/media/mediapool/Images/icons/lumen-halo.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9138,
+        "lng": -77.0288,
+        "radiusMeters": 35,
+        "cooldownSeconds": 30
+      }
+    },
+    {
+      "id": "m12",
+      "title": "Rooftop Sprint",
+      "type": "short_answer",
+      "iconKey": "voyager-dial",
+      "rewards": { "points": 30 },
+      "content": {
+        "question": "Name the neon color the rival crew uses on their getaway zipline.",
+        "answer": "coral",
+        "acceptable": "coral",
+        "hint": "Watch the dial glow when the color is close.",
+        "mediaUrl": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9172,
+        "lng": -77.0411,
+        "radiusMeters": 40,
+        "cooldownSeconds": 40
+      }
+    },
+    {
+      "id": "m13",
+      "title": "Vault Code",
+      "type": "short_answer",
+      "iconKey": "quantum-anchor",
+      "rewards": { "points": 35 },
+      "content": {
+        "question": "What phrase unlocks the submerged vault once the anchor seals?",
+        "answer": "night tide",
+        "acceptable": "night tide,night-tide",
+        "hint": "The contraband hatch glows blue when the words are correct.",
+        "mediaUrl": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9084,
+        "lng": -77.0502,
+        "radiusMeters": 38,
+        "cooldownSeconds": 45
+      }
+    }
+  ]
+}

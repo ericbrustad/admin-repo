@@ -1,0 +1,32 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "best ty",
+    "type": "Mystery",
+    "tags": [
+      "best-ty"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "textRules": [],
+  "appearanceSkin": "cartoon-bubbles",
+  "appearance": {
+    "fontFamily": "\"Baloo 2\", \"Comic Sans MS\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 28,
+    "fontColor": "#4b2c6c",
+    "textBgColor": "#fff1ff",
+    "textBgOpacity": 0.68,
+    "screenBgColor": "#f2dfff",
+    "screenBgOpacity": 0.55,
+    "screenBgImage": "/media/skins/cartoon-balloons.svg",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  }
+}

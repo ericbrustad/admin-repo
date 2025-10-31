@@ -1,0 +1,193 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Newbie",
+    "type": "Thriller",
+    "tags": [
+      "newbie"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [
+    {
+      "id": "d01",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d02",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d03",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d04",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    }
+  ],
+  "powerups": [
+    {
+      "id": "d01",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d02",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d03",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    },
+    {
+      "id": "d04",
+      "title": "v",
+      "type": "smoke",
+      "iconKey": "smoke-shield",
+      "pickupRadius": 100,
+      "effectSeconds": 120,
+      "lat": 44.9778,
+      "lng": -93.265
+    }
+  ],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": [],
+    "thumbs": {
+      "rewards": {},
+      "utilities": {}
+    }
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "trivia",
+        "name": "Trivia",
+        "url": "/media/mediapool/Images/bundles/trivia%20icon.png"
+      },
+      {
+        "key": "trivia-2",
+        "name": "Trivia 2",
+        "url": "/media/mediapool/Images/bundles/trivia%20yellow.png"
+      }
+    ],
+    "devices": [
+      {
+        "key": "smoke-shield",
+        "name": "Smoke Shield",
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png"
+      },
+      {
+        "key": "roaming-robot",
+        "name": "Roaming Robot",
+        "url": "/media/mediapool/Images/bundles/ROBOT1small.png"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "evidence",
+        "name": "Evidence",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "clue",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      },
+      {
+        "key": "gold-coin",
+        "name": "Gold Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Merriweather\", \"Segoe UI\", serif",
+    "fontSizePx": 24,
+    "fontColor": "#1f2b1a",
+    "textBgColor": "#f0faeb",
+    "textBgOpacity": 0.74,
+    "screenBgColor": "#d6efd0",
+    "screenBgOpacity": 0.5,
+    "screenBgImage": "/media/skins/forest-meadow.svg",
+    "textAlign": "left",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "map": {
+    "centerLat": 44.9778,
+    "centerLng": -93.265,
+    "defaultZoom": 13
+  },
+  "geofence": {
+    "mode": "test"
+  },
+  "theme": {
+    "fontFamily": "system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif",
+    "fontGF": null,
+    "fontSize": 18,
+    "fontColor": "#ffffff",
+    "fontColorOpacity": 1,
+    "fontBg": "#000000",
+    "fontBgOpacity": 0.5,
+    "screenBg": "#0b0c10",
+    "screenBgOpacity": 1,
+    "screenImg": "",
+    "screenImgOpacity": 1,
+    "textAlignV": "top"
+  },
+  "appearanceSkin": "forest-meadow"
+}

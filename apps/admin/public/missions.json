@@ -1,0 +1,85 @@
+{
+  "id": "msuite_starfield_station_break",
+  "version": "1.0.0",
+  "flow": {
+    "mode": "linear",
+    "start": "m01"
+  },
+  "missions": [
+    {
+      "id": "m01",
+      "title": "Dockside Briefing",
+      "type": "short_answer",
+      "iconKey": "briefing-star",
+      "rewards": { "points": 25 },
+      "content": {
+        "question": "What override word does the conductor broadcast at sunrise?",
+        "answer": "solstice",
+        "acceptable": "solstice",
+        "hint": "Listen for the brightening beacon loop.",
+        "mediaUrl": "/media/mediapool/Images/covers/starfield-station-break.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9072,
+        "lng": -77.0369,
+        "radiusMeters": 40,
+        "cooldownSeconds": 30
+      },
+      "correct": {
+        "message": "Correct — the sunrise gate unlocks."
+      },
+      "wrong": {
+        "message": "Check the beacon monitors near the ticket hall."
+      }
+    },
+    {
+      "id": "m02",
+      "title": "Signal Sweep",
+      "type": "short_answer",
+      "iconKey": "aurora-beacon",
+      "rewards": { "points": 35 },
+      "content": {
+        "question": "Name the bay where the shuttle is staged after the jammer resets.",
+        "answer": "platform six",
+        "acceptable": "platform 6,platform six",
+        "hint": "Halo Decoy flashes twice toward the correct door.",
+        "mediaUrl": "/media/mediapool/Images/icons/aurora-beacon.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9125,
+        "lng": -77.0473,
+        "radiusMeters": 45,
+        "cooldownSeconds": 45
+      },
+      "correct": {
+        "message": "The docking clamps disengage and lights flicker green."
+      },
+      "wrong": {
+        "message": "Follow the lantern projection and try again in a minute."
+      }
+    },
+    {
+      "id": "m03",
+      "title": "Departure Clearance",
+      "type": "short_answer",
+      "iconKey": "decoy-glow",
+      "rewards": { "points": 40 },
+      "content": {
+        "question": "Which crew member signs the launch manifest once the Chrono Switch fires?",
+        "answer": "chief navarre",
+        "acceptable": "chief navarre,navarre",
+        "hint": "The voyager dial pulses orange when they're nearby.",
+        "mediaUrl": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "geofenceEnabled": true,
+        "lat": 38.9005,
+        "lng": -77.045,
+        "radiusMeters": 50,
+        "cooldownSeconds": 60
+      },
+      "correct": {
+        "message": "Manifest confirmed — the crew slips into the skyline."
+      },
+      "wrong": {
+        "message": "Double-check the manifest crate near the exit rail."
+      }
+    }
+  ]
+}

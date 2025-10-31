@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
+  <defs>
+    <linearGradient id="grad-video" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1f2937" />
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" rx="18" fill="url(#grad-video)" />
+  <rect x="48" y="40" width="224" height="120" rx="16" fill="rgba(15,23,42,0.65)" stroke="rgba(148,163,184,0.5)" stroke-width="4" />
+  <polygon points="148,88 196,100 148,112" fill="#f3f4f6" />
+  <g fill="#cbd5f5" font-family="'Inter', 'Segoe UI', sans-serif" text-anchor="middle">
+    <text x="160" y="174" font-size="26" font-weight="700" letter-spacing="0.3em">VIDEO</text>
+  </g>
+</svg>

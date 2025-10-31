@@ -1,0 +1,57 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Newbie",
+    "type": "Thriller",
+    "tags": [
+      "newbie"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "powerups": [],
+  "theme": {
+    "fontFamily": "system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif",
+    "fontGF": null,
+    "fontSize": 18,
+    "fontColor": "#ffffff",
+    "fontColorOpacity": 1,
+    "fontBg": "#000000",
+    "fontBgOpacity": 0.5,
+    "screenBg": "#0b0c10",
+    "screenBgOpacity": 1,
+    "screenImg": "",
+    "screenImgOpacity": 1,
+    "textAlignV": "top"
+  },
+  "media": {
+    "thumbs": {
+      "rewards": {},
+      "utilities": {}
+    }
+  },
+  "appearanceSkin": "forest-meadow",
+  "appearance": {
+    "fontFamily": "\"Merriweather\", \"Segoe UI\", serif",
+    "fontSizePx": 24,
+    "fontColor": "#1f2b1a",
+    "textBgColor": "#f0faeb",
+    "textBgOpacity": 0.74,
+    "screenBgColor": "#d6efd0",
+    "screenBgOpacity": 0.5,
+    "screenBgImage": "/media/skins/forest-meadow.svg",
+    "textAlign": "left",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  }
+}

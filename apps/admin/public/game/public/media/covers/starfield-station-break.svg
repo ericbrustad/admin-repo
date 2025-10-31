@@ -1,0 +1,35 @@
+<svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a" />
+      <stop offset="45%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+    <radialGradient id="flare" cx="78%" cy="22%" r="60%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.85)" />
+      <stop offset="40%" stop-color="rgba(251,191,36,0.55)" />
+      <stop offset="100%" stop-color="rgba(49,46,129,0)" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#sky)" />
+  <rect width="640" height="360" fill="url(#flare)" />
+  <g opacity="0.35" transform="translate(0,40)">
+    <path d="M0 220 Q80 160 160 210 T320 210 T480 170 T640 220 L640 360 L0 360 Z" fill="#0f172a" />
+  </g>
+  <g fill="#e0f2fe" opacity="0.5">
+    <circle cx="120" cy="100" r="3" />
+    <circle cx="260" cy="60" r="2" />
+    <circle cx="480" cy="90" r="2.5" />
+    <circle cx="540" cy="140" r="1.8" />
+    <circle cx="360" cy="40" r="3" />
+  </g>
+  <text x="48" y="210" fill="#0f172a" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="48" font-weight="700" letter-spacing="0.08em">
+    STARFIELD STATION
+  </text>
+  <text x="48" y="255" fill="#1f2937" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="34" font-weight="600" letter-spacing="0.42em">
+    BREAK
+  </text>
+  <text x="50" y="300" fill="rgba(15, 23, 42, 0.7)" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="18" letter-spacing="0.24em">
+    SUNRISE DOCK ESCAPE
+  </text>
+</svg>

@@ -1,0 +1,9 @@
+# Treat common media assets as binary to avoid accidental CRLF translation or merge conflicts.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.bmp binary
+*.tif binary
+*.tiff binary

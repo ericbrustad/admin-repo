@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&family=Creepster&family=Exo+2:wght@400;600&family=Fredoka:wght@400;600&family=Kalam:wght@400;700&family=Merriweather:wght@400;700&family=Merriweather+Sans:wght@400;600&family=Montserrat:wght@400;600&family=Nunito:wght@400;700&family=Orbitron:wght@400;600&family=Pacifico&family=Poppins:wght@400;600&family=Playfair+Display:wght@400;600&family=Quicksand:wght@400;600&family=Rajdhani:wght@400;600&family=Rubik:wght@400;600&family=Source+Sans+Pro:wght@400;600&family=Titillium+Web:wght@400;600&family=Work+Sans:wght@400;600&family=Chewy&display=swap');
+
+:root {
+  --bg: #0b0f15;
+  --panel: #0f141b;
+  --text: #e9eef2;
+  --muted: #9fb0bf;
+  --accent: #2dd4bf;
+  --border: #22303c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0b0f15;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: #0e191f;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.flex {
+  display: flex;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+input,
+select {
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0b0f15;
+  color: var(--text);
+}
+
+.badge {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 8px 0;
+}
+
+.question {
+  margin-top: 12px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+}
+
+.previewBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px dashed var(--border);
+  padding: 8px;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
+.sample {
+  margin-top: 6px;
+  padding: 8px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}

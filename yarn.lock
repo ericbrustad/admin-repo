@@ -1,0 +1,34 @@
+__metadata:
+  version: 6
+  cacheKey: 0
+
+"admin-esxape-ride@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "admin-esxape-ride@workspace:."
+  dependencies:
+    turbo: ^2.0.0
+  devDependencies:
+    turbo: ^2.0.0
+  languageName: unknown
+  linkType: soft
+
+"game-web@workspace:apps/game-web":
+  version: 0.1.0
+  resolution: "game-web@workspace:apps/game-web"
+  dependencies:
+    next: 15.5.5
+    react: 18.2.0
+    react-dom: 18.2.0
+    swr: 2.2.5
+  languageName: unknown
+  linkType: soft
+
+"esx-admin-control-panel-map@workspace:apps/admin":
+  version: 1.2.1
+  resolution: "esx-admin-control-panel-map@workspace:apps/admin"
+  dependencies:
+    next: ^15.5.5
+    react: 18.2.0
+    react-dom: 18.2.0
+  languageName: unknown
+  linkType: soft

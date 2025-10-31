@@ -1,0 +1,39 @@
+{
+  "version": "0.0.2",
+  "missions": [
+    {
+      "id": "m01",
+      "title": "Welcome",
+      "type": "statement",
+      "rewards": {
+        "points": 10
+      },
+      "content": {
+        "text": "Welcome to mike! Ready to play?"
+      }
+    },
+    {
+      "id": "m02",
+      "title": "buger",
+      "type": "multiple_choice",
+      "rewards": {
+        "points": 25
+      },
+      "content": {
+        "question": "ffff",
+        "choices": [
+          "ff",
+          "f",
+          "f"
+        ],
+        "correctIndex": 2,
+        "mediaUrl": "",
+        "geofenceEnabled": true,
+        "lat": 44.9778,
+        "lng": -93.265,
+        "radiusMeters": 535,
+        "cooldownSeconds": 30
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "version": "0.0.3",
+  "missions": [
+    {
+      "id": "m01",
+      "title": "Welcome",
+      "type": "statement",
+      "rewards": {
+        "points": 10
+      },
+      "content": {
+        "text": "Welcome to gngng! Ready to play?"
+      },
+      "appearanceOverrideEnabled": false,
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "showContinue": true,
+      "iconKey": "trivia"
+    },
+    {
+      "id": "m02",
+      "title": "b b ",
+      "type": "multiple_choice",
+      "iconKey": "trivia-2",
+      "rewards": {
+        "points": 25
+      },
+      "correct": {
+        "mode": "none"
+      },
+      "wrong": {
+        "mode": "none"
+      },
+      "content": {
+        "question": "b b b ",
+        "choices": [
+          "b",
+          "bcb",
+          "bb"
+        ],
+        "correctIndex": 1,
+        "mediaUrl": "",
+        "geofenceEnabled": false,
+        "lat": "",
+        "lng": "",
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": false,
+      "showContinue": true
+    }
+  ]
+}

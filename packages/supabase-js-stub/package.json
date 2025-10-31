@@ -1,0 +1,19 @@
+{
+  "name": "@supabase/supabase-js",
+  "version": "2.45.4",
+  "description": "Stub Supabase client for offline development",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ]
+}

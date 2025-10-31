@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="desertBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6e5c8" />
+      <stop offset="100%" stop-color="#e7cfa3" />
+    </linearGradient>
+    <pattern id="canvas" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
+      <rect width="60" height="60" fill="none" />
+      <path d="M0 0h60M0 30h60" stroke="#d7b88a" stroke-width="2" opacity="0.35" />
+      <path d="M0 0v60M30 0v60" stroke="#f9ecd5" stroke-width="2" opacity="0.4" />
+    </pattern>
+    <radialGradient id="dusk" cx="0.7" cy="0.3" r="0.7">
+      <stop offset="0%" stop-color="#fff3df" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#fff3df" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#desertBase)" />
+  <rect width="1600" height="900" fill="url(#canvas)" />
+  <rect width="1600" height="900" fill="url(#dusk)" />
+  <path d="M0 720c200-60 340-90 520-70s360 130 600 120 310-70 480-120v250H0z" fill="#d8b98a" opacity="0.35" />
+</svg>

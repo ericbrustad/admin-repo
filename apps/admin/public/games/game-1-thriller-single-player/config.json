@@ -1,0 +1,105 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Untitled Game",
+    "type": "Mystery",
+    "tags": [
+      "game-1-thriller-single-player"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "trivia",
+        "name": "Trivia",
+        "url": "/media/mediapool/Images/bundles/trivia%20icon.png"
+      },
+      {
+        "key": "trivia-2",
+        "name": "Trivia 2",
+        "url": "/media/mediapool/Images/bundles/trivia%20yellow.png"
+      }
+    ],
+    "devices": [
+      {
+        "key": "smoke-shield",
+        "name": "Smoke Shield",
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png"
+      },
+      {
+        "key": "roaming-robot",
+        "name": "Roaming Robot",
+        "url": "/media/mediapool/Images/bundles/ROBOT1small.png"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "evidence",
+        "name": "Evidence",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "clue",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      },
+      {
+        "key": "gold-coin",
+        "name": "Gold Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Montserrat\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 23,
+    "fontColor": "#e5ecff",
+    "textBgColor": "#101322",
+    "textBgOpacity": 0.65,
+    "screenBgColor": "#1b2334",
+    "screenBgOpacity": 0.62,
+    "screenBgImage": "https://images.unsplash.com/photo-1473773508845-188df298d2d1?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "middle",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "ghost-fog",
+  "appearanceTone": "light",
+  "mediaTriggers": {
+    "enabled": false,
+    "actionType": "media",
+    "actionTarget": "",
+    "actionLabel": "",
+    "actionThumbnail": "",
+    "triggerDeviceId": "",
+    "triggerDeviceLabel": "",
+    "triggeredResponseKey": "",
+    "triggeredMissionId": ""
+  },
+  "map": {
+    "centerLat": 44.9778,
+    "centerLng": -93.265,
+    "defaultZoom": 13
+  },
+  "geofence": {
+    "mode": "test"
+  }
+}

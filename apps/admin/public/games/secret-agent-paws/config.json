@@ -1,0 +1,85 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "Secret Agent PAWS",
+    "type": "Mystery",
+    "tags": [
+      "secret-agent-paws"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "trivia",
+        "name": "Trivia",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "trivia-2",
+        "name": "Trivia 2",
+        "url": "/media/mediapool/Images/bundles/trivia%20yellow.png"
+      }
+    ],
+    "devices": [
+      {
+        "key": "smoke-shield",
+        "name": "Smoke Shield",
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png"
+      },
+      {
+        "key": "roaming-robot",
+        "name": "Roaming Robot",
+        "url": "/media/mediapool/Images/bundles/ROBOT1small.png"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "evidence",
+        "name": "Evidence",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "clue",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      },
+      {
+        "key": "gold-coin",
+        "name": "Gold Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Kalam\", \"Segoe UI\", cursive",
+    "fontSizePx": 25,
+    "fontColor": "#fdf2f8",
+    "textBgColor": "#312e81",
+    "textBgOpacity": 0.6,
+    "screenBgColor": "#1f1b4d",
+    "screenBgOpacity": 0.64,
+    "screenBgImage": "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "middle",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "feline-lounge"
+}

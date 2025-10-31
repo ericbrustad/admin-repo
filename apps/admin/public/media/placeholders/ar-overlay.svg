@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200">
+  <defs>
+    <linearGradient id="grad-ar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" />
+      <stop offset="100%" stop-color="#312e81" />
+    </linearGradient>
+  </defs>
+  <rect width="320" height="200" rx="18" fill="url(#grad-ar)" />
+  <rect x="10" y="10" width="300" height="180" rx="12" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-dasharray="12 10" />
+  <g fill="#e0e7ff" font-family="'Inter', 'Segoe UI', sans-serif" text-anchor="middle">
+    <text x="160" y="96" font-size="28" font-weight="700" letter-spacing="0.22em">AR OVERLAY</text>
+    <text x="160" y="128" font-size="14" font-weight="500" letter-spacing="0.3em" opacity="0.7">SUPABASE ASSET</text>
+  </g>
+</svg>

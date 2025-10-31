@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "missions": [
+    {
+      "id": "m01",
+      "title": "Welcome",
+      "type": "statement",
+      "rewards": {
+        "points": 10
+      },
+      "content": {
+        "text": "Welcome to jjj! Ready to play?"
+      }
+    }
+  ]
+}

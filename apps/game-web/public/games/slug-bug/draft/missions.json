@@ -1,0 +1,30 @@
+{
+  "id": "msuite_esx",
+  "version": "0.6.25",
+  "flow": {
+    "mode": "linear",
+    "start": "m01"
+  },
+  "missions": [
+    {
+      "id": "m01",
+      "title": "New Mission",
+      "type": "short_answer",
+      "rewards": {
+        "points": 25
+      },
+      "content": {
+        "question": "hi",
+        "answer": "hello",
+        "acceptable": "yes",
+        "mediaUrl": "",
+        "geofenceEnabled": true,
+        "lat": 39.147904,
+        "lng": -95.510221,
+        "radiusMeters": 25,
+        "cooldownSeconds": 30
+      },
+      "appearanceOverrideEnabled": false
+    }
+  ]
+}

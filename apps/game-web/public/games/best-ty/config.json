@@ -1,0 +1,93 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "best ty",
+    "type": "Mystery",
+    "tags": [
+      "best-ty"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "trivia",
+        "name": "Trivia",
+        "url": "/media/mediapool/Images/bundles/trivia%20icon.png"
+      },
+      {
+        "key": "trivia-2",
+        "name": "Trivia 2",
+        "url": "/media/mediapool/Images/bundles/trivia%20yellow.png"
+      }
+    ],
+    "devices": [
+      {
+        "key": "smoke-shield",
+        "name": "Smoke Shield",
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png"
+      },
+      {
+        "key": "roaming-robot",
+        "name": "Roaming Robot",
+        "url": "/media/mediapool/Images/bundles/ROBOT1small.png"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "evidence",
+        "name": "Evidence",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "clue",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      },
+      {
+        "key": "gold-coin",
+        "name": "Gold Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Baloo 2\", \"Comic Sans MS\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 28,
+    "fontColor": "#4b2c6c",
+    "textBgColor": "#fff1ff",
+    "textBgOpacity": 0.68,
+    "screenBgColor": "#f2dfff",
+    "screenBgOpacity": 0.55,
+    "screenBgImage": "/media/skins/cartoon-balloons.svg",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "appearanceSkin": "cartoon-bubbles",
+  "map": {
+    "centerLat": 44.9778,
+    "centerLng": -93.265,
+    "defaultZoom": 13
+  },
+  "geofence": {
+    "mode": "test"
+  }
+}

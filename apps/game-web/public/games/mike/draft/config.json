@@ -1,0 +1,37 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "mike",
+    "type": "Chase",
+    "tags": [
+      "mike"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "powerups": [],
+  "appearanceSkin": "military-desert",
+  "appearance": {
+    "fontFamily": "\"Copperplate\", \"Trebuchet MS\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 24,
+    "fontColor": "#3b2a16",
+    "textBgColor": "#fff4de",
+    "textBgOpacity": 0.76,
+    "screenBgColor": "#f1ddbc",
+    "screenBgOpacity": 0.55,
+    "screenBgImage": "/media/skins/desert-canvas.svg",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  }
+}

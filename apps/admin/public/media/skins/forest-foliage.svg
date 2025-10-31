@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="forestBase" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#d6ead2" />
+      <stop offset="100%" stop-color="#a7cfa0" />
+    </linearGradient>
+    <pattern id="leaves" width="120" height="120" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+      <path d="M20 60c20-30 60-30 80 0-20 30-60 30-80 0z" fill="#8bb886" opacity="0.25" />
+      <path d="M60 0c22 32 22 88 0 120-22-32-22-88 0-120z" fill="#9bc296" opacity="0.25" />
+    </pattern>
+    <radialGradient id="canopy" cx="0.3" cy="0.2" r="0.7">
+      <stop offset="0%" stop-color="#f3ffe9" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#f3ffe9" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#forestBase)" />
+  <rect width="1600" height="900" fill="url(#leaves)" />
+  <rect width="1600" height="900" fill="url(#canopy)" />
+  <path d="M0 820c120-48 200-92 320-100s240 32 360 30 240-58 360-62 220 44 320 80v132H0z" fill="#8cb985" opacity="0.35" />
+</svg>

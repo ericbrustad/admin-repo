@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="meadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e4f3dd" />
+      <stop offset="100%" stop-color="#c6e2ba" />
+    </linearGradient>
+    <pattern id="petals" width="80" height="80" patternUnits="userSpaceOnUse" patternTransform="rotate(14)">
+      <circle cx="20" cy="20" r="6" fill="#f7ffef" opacity="0.5" />
+      <circle cx="60" cy="40" r="5" fill="#ffffff" opacity="0.4" />
+      <circle cx="20" cy="60" r="4" fill="#ffffff" opacity="0.3" />
+    </pattern>
+    <radialGradient id="sunbeam" cx="0.2" cy="0.25" r="0.7">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#meadow)" />
+  <rect width="1600" height="900" fill="url(#petals)" />
+  <rect width="1600" height="900" fill="url(#sunbeam)" />
+  <path d="M0 760c180-60 280-100 460-90s360 130 520 120 320-102 620-150v260H0z" fill="#a9d29b" opacity="0.4" />
+</svg>

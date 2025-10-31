@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&family=Creepster&family=Exo+2:wght@400;600&family=Fredoka:wght@400;600&family=Kalam:wght@400;700&family=Merriweather:wght@400;700&family=Merriweather+Sans:wght@400;600&family=Montserrat:wght@400;600&family=Nunito:wght@400;700&family=Orbitron:wght@400;600&family=Pacifico&family=Poppins:wght@400;600&family=Playfair+Display:wght@400;600&family=Quicksand:wght@400;600&family=Rajdhani:wght@400;600&family=Rubik:wght@400;600&family=Source+Sans+Pro:wght@400;600&family=Titillium+Web:wght@400;600&family=Work+Sans:wght@400;600&family=Chewy&display=swap');
+
+:root{
+  --bg:#0b0f15;
+  --panel:#0f141b;
+  --text:#e9eef2;
+  --muted:#9fb0bf;
+  --accent:#2dd4bf;
+  --border:#22303c;
+  --admin-panel-bg: rgba(15, 23, 42, 0.82);
+  --admin-panel-border: 1px solid rgba(148, 163, 184, 0.35);
+  --admin-panel-shadow: 0 22px 48px rgba(2, 6, 12, 0.55);
+  --admin-body-color: #e2e8f0;
+  --admin-muted: rgba(148, 163, 184, 0.78);
+  --admin-input-bg: rgba(15, 23, 42, 0.78);
+  --admin-input-border: 1px solid rgba(148, 163, 184, 0.35);
+  --admin-input-color: #e2e8f0;
+  --admin-button-bg: linear-gradient(135deg, rgba(217, 228, 245, 0.9), rgba(188, 205, 232, 0.86));
+  --admin-button-border: 1px solid rgba(99, 127, 170, 0.45);
+  --admin-button-color: #0e1c2e;
+  --admin-danger-bg: linear-gradient(135deg, rgba(190, 41, 41, 0.9), rgba(239, 68, 68, 0.9));
+  --admin-danger-border: 1px solid rgba(248, 113, 113, 0.78);
+  --admin-success-bg: linear-gradient(135deg, rgba(20, 122, 75, 0.95), rgba(34, 197, 94, 0.95));
+  --admin-success-border: 1px solid rgba(52, 211, 153, 0.78);
+  --admin-tab-bg: linear-gradient(135deg, rgba(228, 236, 250, 0.82), rgba(203, 214, 236, 0.78));
+  --admin-tab-active-bg: linear-gradient(140deg, #2563eb, #60a5fa);
+  --admin-glass-sheen: 0 14px 30px rgba(54, 83, 137, 0.25);
+  --admin-border-soft: rgba(120, 150, 190, 0.38);
+  --admin-chip-bg: rgba(120, 150, 190, 0.2);
+  --admin-chip-border: 1px solid rgba(120, 150, 190, 0.35);
+  --admin-link-color: #2563eb;
+  --admin-accent: #2563eb;
+  --admin-header-bg: linear-gradient(135deg, rgba(226, 234, 247, 0.92), rgba(197, 210, 232, 0.88));
+  --admin-header-border: 1px solid rgba(99, 127, 170, 0.38);
+  --admin-header-shadow: 0 32px 64px rgba(28, 52, 84, 0.35);
+  --admin-header-blur: blur(18px);
+  --admin-header-frame-bg: linear-gradient(145deg, rgba(236, 243, 255, 0.9), rgba(206, 218, 240, 0.85));
+  --admin-header-frame-border: 1px solid rgba(120, 150, 190, 0.4);
+  --admin-header-frame-shadow: 0 18px 32px rgba(62, 99, 149, 0.35);
+  --admin-save-gradient: linear-gradient(95deg, #2563eb, #38bdf8);
+  --admin-save-border: 1px solid rgba(59, 130, 246, 0.6);
+  --admin-save-shadow: 0 20px 36px rgba(37, 99, 235, 0.45);
+}
+*{box-sizing:border-box}
+html,body,#__next{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,Helvetica}
+.container{max-width:980px;margin:0 auto;padding:16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+.hint{color:var(--muted);font-size:14px}
+.btn{padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:#0b0f15;color:var(--text);cursor:pointer}
+.btn.primary{background:#0e191f}
+.row{display:flex;gap:8px;align-items:center}
+.flex{display:flex;gap:12px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+input,select{padding:8px;border:1px solid var(--border);border-radius:8px;background:#0b0f15;color:var(--text)}
+.badge{color:var(--muted);font-size:12px}
+h1,h2,h3{margin:0 0 8px 0}
+.question{margin-top:12px}
+.options{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.nav{display:flex;justify-content:space-between;margin-top:16px}
+.previewBar{display:flex;align-items:center;gap:8px;border:1px dashed var(--border);padding:8px;border-radius:8px;margin:8px 0}
+.sample{margin-top:6px;padding:8px;border:1px dashed var(--border);border-radius:6px}

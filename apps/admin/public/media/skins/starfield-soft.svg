@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="space" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d8def6" />
+      <stop offset="100%" stop-color="#bfc7f0" />
+    </linearGradient>
+    <radialGradient id="nebula" cx="0.2" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#space)" />
+  <rect width="1600" height="900" fill="url(#nebula)" />
+  <g fill="#ffffff" opacity="0.6">
+    <circle cx="200" cy="160" r="2" />
+    <circle cx="460" cy="120" r="3" />
+    <circle cx="780" cy="240" r="2" />
+    <circle cx="1100" cy="180" r="2.5" />
+    <circle cx="1400" cy="220" r="3" />
+    <circle cx="300" cy="480" r="2.5" />
+    <circle cx="620" cy="520" r="2" />
+    <circle cx="920" cy="440" r="3" />
+    <circle cx="1260" cy="500" r="2" />
+    <circle cx="1500" cy="420" r="1.5" />
+    <circle cx="180" cy="720" r="2" />
+    <circle cx="520" cy="760" r="2.5" />
+    <circle cx="900" cy="720" r="3" />
+    <circle cx="1260" cy="740" r="2" />
+    <circle cx="1500" cy="700" r="1.5" />
+  </g>
+  <path d="M0 840c160-70 320-100 480-80s320 120 520 110 320-90 600-140v170H0z" fill="#b1bcf0" opacity="0.3" />
+</svg>

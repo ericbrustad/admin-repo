@@ -1,0 +1,61 @@
+{
+  "id": "msuite_chronorift_cove",
+  "version": "1.0.0",
+  "flow": { "mode": "linear", "start": "c1" },
+  "missions": [
+    {
+      "id": "c1",
+      "title": "Helm Alignment",
+      "type": "short_answer",
+      "iconKey": "helm-brief",
+      "rewards": { "points": 22 },
+      "content": {
+        "question": "Which constellation must be centered on the helm to enter the rift?",
+        "answer": "lyra",
+        "acceptable": "lyra",
+        "mediaUrl": "/media/mediapool/Images/icons/voyager-dial.svg",
+        "geofenceEnabled": true,
+        "lat": 38.8961,
+        "lng": -77.0055,
+        "radiusMeters": 32,
+        "cooldownSeconds": 30
+      }
+    },
+    {
+      "id": "c2",
+      "title": "Beacon Echo",
+      "type": "short_answer",
+      "iconKey": "aurora-beacon",
+      "rewards": { "points": 28 },
+      "content": {
+        "question": "What phrase calms the storm signal once the beacon pulses thrice?",
+        "answer": "hold fast",
+        "acceptable": "hold fast",
+        "mediaUrl": "/media/mediapool/Images/icons/aurora-beacon.svg",
+        "geofenceEnabled": true,
+        "lat": 38.8899,
+        "lng": -77.0091,
+        "radiusMeters": 36,
+        "cooldownSeconds": 40
+      }
+    },
+    {
+      "id": "c3",
+      "title": "Anomaly Seal",
+      "type": "short_answer",
+      "iconKey": "quantum-anchor",
+      "rewards": { "points": 35 },
+      "content": {
+        "question": "Name the artifact placed inside the tidal anchor to finish the seal.",
+        "answer": "rift prism",
+        "acceptable": "rift prism",
+        "mediaUrl": "/media/mediapool/Images/icons/quantum-anchor.svg",
+        "geofenceEnabled": true,
+        "lat": 38.8864,
+        "lng": -77.0226,
+        "radiusMeters": 42,
+        "cooldownSeconds": 45
+      }
+    }
+  ]
+}

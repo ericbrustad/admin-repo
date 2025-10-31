@@ -1,0 +1,93 @@
+{
+  "splash": {
+    "enabled": true,
+    "mode": "single"
+  },
+  "game": {
+    "title": "up",
+    "type": "Mystery",
+    "tags": [
+      "up"
+    ],
+    "coverImage": ""
+  },
+  "forms": {
+    "players": 1
+  },
+  "timer": {
+    "durationMinutes": 0,
+    "alertMinutes": 10
+  },
+  "textRules": [],
+  "devices": [],
+  "powerups": [],
+  "media": {
+    "rewardsPool": [],
+    "penaltiesPool": []
+  },
+  "icons": {
+    "missions": [
+      {
+        "key": "trivia",
+        "name": "Trivia",
+        "url": "/media/mediapool/Images/bundles/trivia%20icon.png"
+      },
+      {
+        "key": "trivia-2",
+        "name": "Trivia 2",
+        "url": "/media/mediapool/Images/bundles/trivia%20yellow.png"
+      }
+    ],
+    "devices": [
+      {
+        "key": "smoke-shield",
+        "name": "Smoke Shield",
+        "url": "/media/mediapool/Images/bundles/SMOKE%20BOMB.png"
+      },
+      {
+        "key": "roaming-robot",
+        "name": "Roaming Robot",
+        "url": "/media/mediapool/Images/bundles/ROBOT1small.png"
+      }
+    ],
+    "rewards": [
+      {
+        "key": "evidence",
+        "name": "Evidence",
+        "url": "/media/mediapool/Images/bundles/evidence%202.png"
+      },
+      {
+        "key": "clue",
+        "name": "Clue",
+        "url": "/media/mediapool/Images/bundles/CLUEgreen.png"
+      },
+      {
+        "key": "gold-coin",
+        "name": "Gold Coin",
+        "url": "/media/mediapool/Images/bundles/GOLDEN%20COIN.png"
+      }
+    ]
+  },
+  "appearance": {
+    "fontFamily": "\"Poppins\", \"Segoe UI\", sans-serif",
+    "fontSizePx": 24,
+    "fontColor": "#2f1f0f",
+    "textBgColor": "#fff8eb",
+    "textBgOpacity": 0.74,
+    "screenBgColor": "#ffe9c9",
+    "screenBgOpacity": 0.54,
+    "screenBgImage": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+    "textAlign": "center",
+    "textVertical": "top",
+    "screenBgImageEnabled": true
+  },
+  "map": {
+    "centerLat": 44.9778,
+    "centerLng": -93.265,
+    "defaultZoom": 13
+  },
+  "geofence": {
+    "mode": "test"
+  },
+  "appearanceSkin": "summer-breeze"
+}

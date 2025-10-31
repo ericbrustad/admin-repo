@@ -1,0 +1,36 @@
+<svg width="640" height="360" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="night" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="55%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <radialGradient id="lantern" cx="20%" cy="40%" r="40%">
+      <stop offset="0%" stop-color="rgba(236,72,153,0.9)" />
+      <stop offset="55%" stop-color="rgba(236,72,153,0.35)" />
+      <stop offset="100%" stop-color="rgba(15,23,42,0)" />
+    </radialGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#night)" />
+  <rect width="640" height="360" fill="url(#lantern)" />
+  <g opacity="0.3" fill="#f472b6">
+    <circle cx="520" cy="80" r="6" />
+    <circle cx="560" cy="120" r="4" />
+    <circle cx="460" cy="140" r="5" />
+    <circle cx="580" cy="210" r="3" />
+    <circle cx="500" cy="220" r="4" />
+  </g>
+  <g opacity="0.45" fill="#14b8a6">
+    <rect x="60" y="250" width="520" height="8" rx="4" />
+    <rect x="80" y="270" width="480" height="6" rx="3" />
+  </g>
+  <text x="60" y="120" fill="#fdf4ff" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="44" font-weight="700" letter-spacing="0.12em">
+    NEON LANTERN
+  </text>
+  <text x="60" y="165" fill="#fbcfe8" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="32" font-weight="600" letter-spacing="0.4em">
+    HEIST
+  </text>
+  <text x="62" y="206" fill="#c7d2fe" font-family="'Exo 2', 'Segoe UI', sans-serif" font-size="18" letter-spacing="0.3em">
+    MIDNIGHT MARKET RUN
+  </text>
+</svg>
