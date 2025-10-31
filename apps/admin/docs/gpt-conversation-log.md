@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-02T12:00:00Z
+
+**You:** Ship the global Leaflet ↔ Mapbox engine toggle with settings preview, geolocate, and the recenter-with-offset API for missions/devices/pins. Make sure the admin remembers my preference and call out that ChatGPT-5 thinking verified the flow.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, added the shared engine context with Leaflet/Mapbox canvases, wired the Settings preview with geolocate and current-view actions, persisted the map preview toggle, and shipped the Mercator recenter API that offsets missions, devices, pins, and circles before saving.
+
+---
+
 **Timestamp:** 2025-11-02T04:45:00Z
 
 **You:** Split the Supabase media storage so drafts live in a private bucket with signed URLs, keep published assets public, and make sure every upload/list call is slug-aware. Also make sure ChatGPT-5 thinking signs off once the admin UI points at the right buckets.
