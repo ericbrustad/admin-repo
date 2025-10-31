@@ -55,7 +55,11 @@ export default function AppDemo() {
 
         <div style={{ marginTop: 20 }}>
           <h4>Inline Mission Responses</h4>
-          <InlineMissionResponses value={{ onCorrect: { statement: 'Nice!', isTrigger: false } }} onChange={(v) => console.log('responses', v)} />
+          <InlineMissionResponses
+            value={{ onCorrect: { statement: 'Nice!', isTrigger: false } }}
+            onChange={(v) => console.log('responses', v)}
+            slug="default"
+          />
         </div>
       </div>
     </div>

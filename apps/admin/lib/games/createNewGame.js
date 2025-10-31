@@ -25,19 +25,29 @@ export async function createNewGame({ title, slug, channel = 'draft', config = {
     },
   };
 
-  const endpoint = normalizedChannel === 'published'
-    ? '/api/games/save-and-publish'
-    : '/api/games/save-full';
+  const persist = async (targetChannel) => {
+    const response = await fetch('/api/games/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slug: targetSlug,
+        channel: targetChannel,
+        title: safeTitle,
+        config: snapshot.data.config,
+        suite: snapshot.data.suite,
+        snapshot,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload?.ok === false) {
+      const message = payload?.error || `Failed to create game (${response.status})`;
+      throw new Error(message);
+    }
+  };
 
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ slug: targetSlug, channel: normalizedChannel, snapshot }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new Error(text || 'Failed to create game');
+  await persist('draft');
+  if (normalizedChannel === 'published') {
+    await persist('published');
   }
 
   return targetSlug;

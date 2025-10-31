@@ -65,8 +65,13 @@ export default function HeaderBar({
       {/* Middle: actions (hidden in Settings mode except the Settings tag) */}
       <div style={S.middle}>
         {isSettings ? (
-          <button type="button" onClick={() => onBack()} style={S.backBtn} aria-label="Back to main">
-            ← Back
+          <button
+            type="button"
+            onClick={() => onBack()}
+            style={S.backBtn}
+            aria-label="Update and close settings"
+          >
+            Update and Close Settings
           </button>
         ) : (
           <div style={S.actionsRail} role="toolbar" aria-label="Primary actions">
@@ -250,5 +255,6 @@ const styles = {
     background: 'white',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
+    fontWeight: 700,
   },
 };
