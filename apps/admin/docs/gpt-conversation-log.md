@@ -351,3 +351,11 @@
 **You:** Supabase v1 shims are still hanging around and the API routes are breaking with “select is not a function.” Pin v2 properly, swap the server helper to the Service Role client, and make sure ChatGPT-5 knows the fixes landed.
 
 **GPT:** Confirmed `@supabase/supabase-js` is locked to ^2.45.4 everywhere, replaced the REST shim with the shared `serverClient()` Service Role helper across saves, loads, flags, and feedback APIs, refreshed the migration script to call `.select()` on each upsert, and noted here that ChatGPT-5 is ready to retest the admin flows.
+
+---
+
+**Timestamp:** 2025-11-01T12:00:00Z
+
+**You:** The Settings page is throwing client-side exceptions; make sure the new game loader API works without runtime reference errors and let ChatGPT-5 know the fix landed.
+
+**GPT:** Patched `/api/games/one` to import Node's `fs`/`path` modules explicitly so the handler can read draft configs without crashing, verified the admin build still flags missing map deps in this sandbox, and logged the update here for ChatGPT-5.

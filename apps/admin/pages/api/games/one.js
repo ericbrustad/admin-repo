@@ -1,6 +1,7 @@
 // [Codex note] Fetch a single game's full payload (title/images/config) from Supabase, with FS fallback.
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+
 import { serverClient } from '../../../lib/supabaseClient';
 
 function clean(s) { return String(s || '').trim(); }
