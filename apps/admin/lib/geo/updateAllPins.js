@@ -53,3 +53,35 @@ export function deriveInitialGeo(snapshot) {
   return null;
 }
 
+export function collectPinsFromSnapshot(snapshot) {
+  const results = [];
+  const seen = new Set();
+
+  function visit(node) {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      for (const item of node) visit(item);
+      return;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(node, 'lat') && Object.prototype.hasOwnProperty.call(node, 'lng')) {
+      const lat = Number(node.lat);
+      const lng = Number(node.lng);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        const key = `${lat.toFixed(6)}:${lng.toFixed(6)}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({ lat, lng });
+        }
+      }
+    }
+
+    for (const value of Object.values(node)) {
+      visit(value);
+    }
+  }
+
+  visit(snapshot?.data);
+  return results;
+}
+

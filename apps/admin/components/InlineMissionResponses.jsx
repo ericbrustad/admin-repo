@@ -72,7 +72,13 @@ function fallbackLabelFromUrl(u) {
   }
 }
 
-export default function InlineMissionResponses({ editing, setEditing, inventory = [] }) {
+export default function InlineMissionResponses({
+  editing,
+  setEditing,
+  inventory = [],
+  channel = 'draft',
+  slug = 'default',
+}) {
   const safeEditing = useMemo(() => normalizeMission(editing), [editing]);
   const [devices, setDevices] = useState([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
@@ -136,61 +142,41 @@ export default function InlineMissionResponses({ editing, setEditing, inventory 
     setEditing(normalized);
   }
 
-  function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
-      if (typeof window !== "undefined" && window.FileReader) {
-        try {
-          const reader = new FileReader();
-          reader.onload = () => {
-            const result = reader.result;
-            if (typeof result === "string") {
-              const base64 = result.split(",")[1] || "";
-              resolve(base64);
-            } else {
-              reject(new Error("Unable to read file contents"));
-            }
-          };
-          reader.onerror = () => reject(reader.error || new Error("Unable to read file contents"));
-          reader.readAsDataURL(file);
-          return;
-        } catch (err) {
-          // fall through to arrayBuffer path below
-          console.warn("FileReader failed, falling back to arrayBuffer", err);
-        }
-      }
-
-      file.arrayBuffer()
-        .then((arrayBuffer) => {
-          const bytes = new Uint8Array(arrayBuffer);
-          let binary = "";
-          const chunk = 0x8000;
-          for (let i = 0; i < bytes.length; i += chunk) {
-            const segment = bytes.subarray(i, i + chunk);
-            binary += String.fromCharCode(...segment);
-          }
-          resolve(btoa(binary));
-        })
-        .catch(reject);
-    });
-  }
-
-  async function uploadFileAsMedia(file, subfolder="uploads") {
+  async function uploadFileAsMedia(file, subfolder = "uploads") {
     if (!file) return "";
     try {
-      const base64 = await readFileAsBase64(file);
       const safeName = (file.name || "upload").replace(/[^\w.\-]+/g, "_");
       const timestamp = Date.now();
-      const path = `public/media/${subfolder}/${timestamp}-${safeName}`;
-      const res = await fetch("/api/upload", {
+      let normalizedFolder = String(subfolder || "uploads")
+        .replace(/\\/g, "/")
+        .replace(/^\/+|\/+$/g, "")
+        .replace(/^mediapool\/?/i, "");
+      if (!normalizedFolder) normalizedFolder = "uploads";
+      let relativeFolder = normalizedFolder;
+      if (!relativeFolder.toLowerCase().startsWith("images")) {
+        relativeFolder = `Images/${relativeFolder}`;
+      }
+      const cleanFolder = relativeFolder.split("/").filter(Boolean).join("/");
+      const remoteName = `${cleanFolder}/${timestamp}-${safeName}`.replace(/\/+/, "/");
+      const form = new FormData();
+      form.append("file", file, safeName);
+      const normalizedChannel = (channel === 'published') ? 'published' : 'draft';
+      const normalizedSlug = (slug || 'default').toString().trim().toLowerCase() || 'default';
+      const qs = new URLSearchParams({
+        channel: normalizedChannel,
+        slug: normalizedSlug,
+        filename: remoteName,
+      });
+      const res = await fetch(`/api/media/upload?${qs.toString()}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ path, contentBase64: base64, message: `upload ${safeName}` })
+        body: form,
       });
       const j = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(j?.error || "upload failed");
-      const url = "/" + path.replace(/^public\//,'');
-      return url;
+      if (!res.ok || j?.ok === false) {
+        throw new Error(j?.error || `upload failed (${res.status})`);
+      }
+      return j.url || j.publicUrl || "";
     } catch (e) {
       console.error("upload failed", e);
       alert("Upload failed: " + (e?.message || e));

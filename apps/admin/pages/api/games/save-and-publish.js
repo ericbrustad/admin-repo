@@ -12,15 +12,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Missing slug or snapshot' });
     }
 
-    const supabase = serverClient();
-    const payload = {
-      slug,
-      channel: 'published',
-      data: snapshot,
-      updated_at: new Date().toISOString(),
-    };
-
-    await upsertReturning(supabase, 'games', payload, { onConflict: 'slug' });
+    await upsertGameRow({ slug, channel: 'published', snapshot });
 
     return res.status(200).json({ ok: true, published: true });
   } catch (error) {

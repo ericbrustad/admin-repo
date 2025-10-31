@@ -23,6 +23,7 @@ export default function SavedGamesSelect() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Load unified list
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -84,7 +85,7 @@ export default function SavedGamesSelect() {
           if (!val) return;
           if (val === '__default__') return openGame('default','draft');
           const [slug, channel] = val.split('::');
-          openGame(slug, channel || 'draft');
+          selectGame(slug, channel || 'draft');
         }}
       >
         <option value="" disabled>{loading ? 'Loading…' : 'Select a game'}</option>

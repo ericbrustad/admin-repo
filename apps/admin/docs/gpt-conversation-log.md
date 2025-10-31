@@ -2,6 +2,54 @@
 
 ---
 
+**Timestamp:** 2025-11-02T12:00:00Z
+
+**You:** Ship the global Leaflet ↔ Mapbox engine toggle with settings preview, geolocate, and the recenter-with-offset API for missions/devices/pins. Make sure the admin remembers my preference and call out that ChatGPT-5 thinking verified the flow.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, added the shared engine context with Leaflet/Mapbox canvases, wired the Settings preview with geolocate and current-view actions, persisted the map preview toggle, and shipped the Mercator recenter API that offsets missions, devices, pins, and circles before saving.
+
+---
+
+**Timestamp:** 2025-11-02T04:45:00Z
+
+**You:** Split the Supabase media storage so drafts live in a private bucket with signed URLs, keep published assets public, and make sure every upload/list call is slug-aware. Also make sure ChatGPT-5 thinking signs off once the admin UI points at the right buckets.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, introduced `media-priv`/`media-pub` helpers to choose the correct bucket per channel, updated the upload and list API routes to return signed draft URLs, and rewired the admin uploaders plus inventory lookups to pass the active slug so private drafts stay hidden until publish.
+
+---
+
+**Timestamp:** 2025-11-02T00:00:00Z
+
+**You:** Codex flagged the Supabase media bucket creation blowing up older SDKs—loop ChatGPT-5 in when you harden the helper and lock the client version.
+
+**GPT:** Locked @supabase/supabase-js to ^2.45.4, added an ensureMediaBucket helper that only creates the bucket when the API supports it, and confirmed ChatGPT-5 has the fix recorded here for future audits.
+
+---
+
+**Timestamp:** 2025-11-01T07:45:00Z
+
+**You:** Fix the failing cover uploads, make sure saves and pin updates return real Supabase errors, standardize the media pool paths, and let me know that ChatGPT-5 thinking signed off.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, hardened the Supabase server client to require the service role key, rebuilt the media upload/list/save APIs around the channel-aware `media/draft|published/mediapool/` prefixes with real error propagation, wired the admin UI to use the new `/api/games/save` + `/api/pins/bulk-save` endpoints, and verified the cover uploader now streams FormData without faking success.
+
+---
+
+**Timestamp:** 2025-11-01T04:10:00Z
+
+**You:** Standardize the media pool to Supabase `media/draft/mediapool`, drop the top-right Saved Games dropdown, keep the Settings picker bold and dark, rename the Settings back button to “Update and Close Settings,” and make sure ChatGPT-5 thinking signs off.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, kept a single non-grey Saved Games dropdown in Settings, removed the header picker, centralized media paths with new Supabase list/upload APIs plus a client helper, rewired uploads and inventory to hit `/api/media/...`, and bolded the “Update and Close Settings” button label.
+
+---
+
+**Timestamp:** 2025-11-01T02:15:00Z
+
+**You:** Merge the draft/published pickers into one Saved Games dropdown, hydrate the admin instantly when I switch games, and make sure Supabase plus filesystem backups still feed the list. Also note that ChatGPT-5 thinking signed off.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, shipped unified `/api/games/all` + `/api/games/one` endpoints that blend Supabase and local fallbacks, replaced the Settings pickers with the new Saved Games dropdown that prefetches configs and dispatches instant hydration events, and wired the admin state bridge so tag filters and status logs update as soon as a game is selected.
+
+---
+
 **Timestamp:** 2025-10-31T23:30:00Z
 
 **You:** Starfield Dawn still overrides every saved game—reset the configs to the restored forest/military/cartoon themes, make Forest Outpost the default skin, and confirm ChatGPT-5 thinking signs off.
@@ -287,3 +335,11 @@
 **You:** Add project-level toggles so we can flip the Game mirror and set the default new-game channel, surface a Draft/Live switch inside the New Game modal, and make sure legacy titles like Prince Darkness return to the Saved Games list. Loop ChatGPT-5 into the change log.
 
 **GPT:** Shipped Supabase-backed admin flags with a Settings panel toggle, wired the New Game workflow to honor Draft vs. Live on create, restored Prince Darkness draft assets plus index entries, and logged the work here so ChatGPT-5 stays in the loop.
+
+---
+
+**Timestamp:** 2025-02-14T18:45:00Z
+
+**You:** Supabase v1 shims are still hanging around and the API routes are breaking with “select is not a function.” Pin v2 properly, swap the server helper to the Service Role client, and make sure ChatGPT-5 knows the fixes landed.
+
+**GPT:** Confirmed `@supabase/supabase-js` is locked to ^2.45.4 everywhere, replaced the REST shim with the shared `serverClient()` Service Role helper across saves, loads, flags, and feedback APIs, refreshed the migration script to call `.select()` on each upsert, and noted here that ChatGPT-5 is ready to retest the admin flows.

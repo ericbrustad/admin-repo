@@ -56,7 +56,12 @@ export default function AppDemo() {
 
         <div style={{ marginTop: 20 }}>
           <h4>Inline Mission Responses</h4>
-          <InlineMissionResponses mediaPool={media} value={{ onCorrect: { enabled: false }, onWrong: { enabled: false } }} onChange={(v) => console.log('responses', v)} />
+          <InlineMissionResponses
+            mediaPool={media}
+            value={{ onCorrect: { enabled: false }, onWrong: { enabled: false } }}
+            onChange={(v) => console.log('responses', v)}
+            slug="default"
+          />
         </div>
       </div>
 
