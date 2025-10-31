@@ -11,6 +11,13 @@ const S = {
   },
 };
 
+function normalizeChannel(value) {
+  const next = String(value || '').toLowerCase();
+  if (next === 'published') return 'published';
+  if (next === 'draft') return 'draft';
+  return 'other';
+}
+
 export default function SavedGamesSelect() {
   const router = useRouter();
   const [items, setItems] = useState([]);
@@ -39,6 +46,25 @@ export default function SavedGamesSelect() {
     return g;
   }, [items]);
 
+  const activeChannel = useMemo(
+    () => normalizeChannel(router?.query?.channel || 'draft'),
+    [router?.query?.channel],
+  );
+
+  const selectedValue = useMemo(() => {
+    const slug = typeof router?.query?.game === 'string' && router.query.game.trim()
+      ? router.query.game.trim()
+      : '';
+    if (!slug) return '';
+    if (slug === 'default') return '__default__';
+
+    const preferredKey = `${slug}::${activeChannel}`;
+    if (items.some(it => `${it.slug}::${it.channel}` === preferredKey)) return preferredKey;
+
+    const fallback = items.find(it => it.slug === slug);
+    return fallback ? `${fallback.slug}::${fallback.channel}` : '';
+  }, [activeChannel, items, router?.query?.game]);
+
   function openGame(slug, channel) {
     const q = { ...router.query, game: slug };
     if (channel) q.channel = channel; else delete q.channel;
@@ -51,7 +77,7 @@ export default function SavedGamesSelect() {
       <label style={S.label}>Saved Games</label>
       <select
         style={S.select}
-        defaultValue=""
+        value={selectedValue}
         disabled={loading || items.length === 0}
         onChange={(e) => {
           const val = e.target.value;
