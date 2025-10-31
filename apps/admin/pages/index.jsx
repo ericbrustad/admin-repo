@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import GamesDropdown from '../components/GamesDropdown';
+import { useRouter } from 'next/router';
+import SavedGamesSelect from '../components/SavedGamesSelect';
 import HeaderBar from '../components/HeaderBar';
 import TestLauncher from '../components/TestLauncher';
 import HomeDefaultButtons from '../components/HomeDefaultButtons';
@@ -7,7 +8,6 @@ import AnswerResponseEditor from '../components/AnswerResponseEditor';
 import InlineMissionResponses from '../components/InlineMissionResponses';
 import AssignedMediaTab from '../components/AssignedMediaTab';
 import SafeBoundary from '../components/SafeBoundary';
-import SavedGamesPicker from '../components/Settings/SavedGamesPicker';
 import ProjectFlags from '../components/Settings/ProjectFlags.jsx';
 import GlobalLocationSelector from '../components/Settings/GlobalLocationSelector.jsx';
 import HideLegacyStatusToggles from '../components/HideLegacyStatusToggles';
@@ -1745,6 +1745,8 @@ const DEFAULT_SNAPSHOT_KEY = 'erix.defaultOriginalSnapshot';
 
 /* ───────────────────────── Root ───────────────────────── */
 export default function Admin() {
+  const router = useRouter();
+  const lastQuerySelectionRef = useRef('');
   const [gameEnabled, setGameEnabled] = useState(GAME_ENABLED);
   const [tab, setTab] = useState('missions');
 
@@ -4087,23 +4089,52 @@ export default function Admin() {
     return entries;
   }, [gamesIndex, games]);
 
-  const savedGamesChannel = useMemo(() => {
-    const slug = activeSlug || 'default';
-    const desired = slug === 'default' ? 'draft' : headerStatus;
-    const match = savedGamesList.some(
-      (entry) => entry.slug === slug && (entry.channel || 'draft') === desired,
-    );
-    if (match) return desired;
-    return 'draft';
-  }, [activeSlug, headerStatus, savedGamesList]);
-
-  const savedGamesValue = `${activeSlug || 'default'}:${savedGamesChannel}`;
-
   useEffect(() => {
     if (tab !== 'settings' && confirmDeleteOpen) {
       setConfirmDeleteOpen(false);
     }
   }, [tab, confirmDeleteOpen]);
+
+  useEffect(() => {
+    if (!router?.isReady) return;
+    const rawSlug = router.query?.game;
+    const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
+    if (!slug) return;
+    const rawChannel = router.query?.channel;
+    const channel = Array.isArray(rawChannel) ? rawChannel[0] : rawChannel;
+    const normalizedChannel = channel === 'published' ? 'published' : 'draft';
+    const key = `${slug}::${normalizedChannel}`;
+    if (lastQuerySelectionRef.current === key) return;
+    lastQuerySelectionRef.current = key;
+    const match = settingsMenuGames.find(
+      (entry) => entry.slug === slug && (entry.channel === normalizedChannel || (normalizedChannel === 'draft' && entry.channel === 'default')),
+    );
+    const label = match?.label || match?.title || slug;
+    applyOpenGameFromMenu(slug, normalizedChannel, label);
+  }, [router, router?.isReady, router?.query?.game, router?.query?.channel, settingsMenuGames, applyOpenGameFromMenu]);
+
+  const syncRouterToGame = useCallback(
+    (slug, channel = 'draft') => {
+      if (!slug || !router) return;
+      const normalized = channel === 'published' ? 'published' : 'draft';
+      const currentSlugParam = router.query?.game;
+      const currentSlug = Array.isArray(currentSlugParam) ? currentSlugParam[0] : currentSlugParam;
+      const currentChannelParam = router.query?.channel;
+      const currentChannel = Array.isArray(currentChannelParam) ? currentChannelParam[0] : currentChannelParam;
+      const normalizedCurrent = currentChannel === 'published' ? 'published' : 'draft';
+      if (currentSlug === slug && normalizedCurrent === normalized) {
+        lastQuerySelectionRef.current = `${slug}::${normalized}`;
+        return;
+      }
+      lastQuerySelectionRef.current = `${slug}::${normalized}`;
+      if (!router.isReady) return;
+      const nextQuery = { ...router.query, game: slug };
+      if (normalized) nextQuery.channel = normalized; else delete nextQuery.channel;
+      delete nextQuery.mission;
+      router.push({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
+    },
+    [router],
+  );
 
   const applyOpenGameFromMenu = useCallback(
     (slug, channel = 'draft', label = '') => {
@@ -4115,8 +4146,12 @@ export default function Admin() {
       setTab('settings');
       const displayLabel = label || `${slug} (${normalized === 'default' ? 'default' : nextChannel})`;
       setStatus(`Opened ${displayLabel}`);
+      setActiveTagsToOnly(slug);
+      logConversation('You', `Switched to ${displayLabel || slug}`);
+      logConversation('GPT', 'Tag filters updated to focus on the selected game.');
+      syncRouterToGame(slug, nextChannel);
     },
-    [setActiveSlug, setEditChannel, setTab, setStatus],
+    [setActiveSlug, setEditChannel, setTab, setStatus, setActiveTagsToOnly, logConversation, syncRouterToGame],
   );
 
   useEffect(() => {
@@ -5600,9 +5635,8 @@ export default function Admin() {
         <main style={S.wrap}>
           <div style={S.card}>
             <h3 style={{ marginTop:0 }}>Game Settings</h3>
-            {/* Codex note (2025-10-30): Saved Games dropdown (filesystem scan via /api/games/list) */}
             <div data-codex="SettingsGamesDropdown">
-              <GamesDropdown />
+              <SavedGamesSelect />
             </div>
             <div style={{ display: 'grid', gap: 12, marginBottom: 16 }}>
               <div>
@@ -5626,27 +5660,6 @@ export default function Admin() {
                   + New Game
                 </button>
               </div>
-              <SavedGamesPicker
-                games={savedGamesList}
-                value={savedGamesValue}
-                defaultSlug={defaultSlug}
-                onChange={(val) => {
-                  setConfirmDeleteOpen(false);
-                  const [slug, channel] = String(val || '').split(':');
-                  if (!slug) return;
-                  const normalized = channel === 'published' ? 'published' : 'draft';
-                  const match = savedGamesList.find(
-                    (entry) => entry.slug === slug && (entry.channel || 'draft') === normalized,
-                  );
-                  const label = match
-                    ? `${match.title || match.slug}${normalized === 'published' ? ' (published)' : ' (draft)'}`
-                    : undefined;
-                  applyOpenGameFromMenu(slug, normalized, label);
-                  setActiveTagsToOnly(slug);
-                  logConversation('You', `Switched to ${label || slug}`);
-                  logConversation('GPT', 'Tag filters updated to focus on the selected game.');
-                }}
-              />
               <div>
                 {confirmDeleteOpen ? (
                   <div
@@ -6205,7 +6218,7 @@ export default function Admin() {
               {metaDevFooterLine}
             </div>
             <div style={{ ...S.settingsFooterTime, fontWeight: 600 }}>
-              Repo: {metaRepoFooterLabel} • Branch: {metaBranchFooterLabel} • Commit: {metaCommitFooterLabel} • Deployment: {metaDeploymentFooterLabel} • Timestamp {metaFooterNowLabel}
+              Dev Build Info — Repo: {metaRepoFooterLabel} • Branch: {metaBranchFooterLabel} • Commit: {metaCommitFooterLabel} • Deployment: {metaDeploymentFooterLabel} • Timestamp {metaFooterNowLabel}
             </div>
           </footer>
         </main>
