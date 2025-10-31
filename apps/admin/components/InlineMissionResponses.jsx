@@ -152,14 +152,17 @@ export default function InlineMissionResponses({ editing, setEditing, inventory 
       }
       const cleanFolder = relativeFolder.split("/").filter(Boolean).join("/");
       const remoteName = `${cleanFolder}/${timestamp}-${safeName}`.replace(/\/+/, "/");
+      const form = new FormData();
+      form.append("file", file, safeName);
       const res = await fetch(`/api/media/upload?channel=draft&filename=${encodeURIComponent(remoteName)}`, {
         method: "POST",
-        headers: { "Content-Type": file.type || "application/octet-stream" },
         credentials: "include",
-        body: file,
+        body: form,
       });
       const j = await res.json().catch(() => ({}));
-      if (!j?.ok) throw new Error(j?.error || "upload failed");
+      if (!res.ok || j?.ok === false) {
+        throw new Error(j?.error || `upload failed (${res.status})`);
+      }
       return j.publicUrl || "";
     } catch (e) {
       console.error("upload failed", e);

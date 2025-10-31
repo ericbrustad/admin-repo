@@ -21,7 +21,7 @@ import {
 import { GAME_ENABLED } from '../lib/game-switch';
 import { createNewGame } from '../lib/games/createNewGame.js';
 import { nextMissionId, nextDeviceId } from '../lib/ids.js';
-import { updateAllPinsInSnapshot, deriveInitialGeo } from '../lib/geo/updateAllPins.js';
+import { updateAllPinsInSnapshot, deriveInitialGeo, collectPinsFromSnapshot } from '../lib/geo/updateAllPins.js';
 import { getDefaultGeo } from '../lib/geo/defaultGeo.js';
 import { MEDIA_BUCKET, mediaPoolPrefix } from '../lib/mediaPool';
 
@@ -3039,19 +3039,23 @@ export default function Admin() {
         const snapshot = await getSnapshotFor(slug);
         if (!snapshot) throw new Error('Snapshot unavailable');
         const mutated = updateAllPinsInSnapshot(cloneSnapshot(snapshot), lat, lng);
-        const response = await fetch('/api/games/save-full', {
+        const pinsPayload = collectPinsFromSnapshot(mutated);
+        const configPayload = mutated?.data?.config || {};
+        const response = await fetch('/api/pins/bulk-save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({
             slug,
             channel: headerStatus,
-            snapshot: mutated,
+            pins: pinsPayload,
+            config: configPayload,
           }),
         });
-        if (!response.ok) {
-          const text = await response.text();
-          throw new Error(text || 'Save failed');
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result?.ok === false) {
+          const message = result?.error || `Pins save failed (${response.status})`;
+          throw new Error(message);
         }
         if (mutated?.data?.config) {
           setConfig(mutated.data.config);
@@ -3102,20 +3106,37 @@ export default function Admin() {
         }
 
         if (!handled) {
-          const endpoint = publish ? '/api/games/save-and-publish' : '/api/games/save-full';
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              slug,
-              channel: publish ? 'published' : headerStatus,
-              snapshot,
-            }),
-          });
-          if (!response.ok) {
-            const text = await response.text();
-            throw new Error(text || 'Save request failed');
+          const configPayload = snapshot?.data?.config || {};
+          const suitePayload = snapshot?.data?.suite || null;
+          const titlePayload = snapshot?.meta?.title || configPayload?.game?.title || slug;
+          const normalizedDraftChannel = headerStatus === 'published' ? 'published' : 'draft';
+
+          const saveToChannel = async (targetChannel) => {
+            const response = await fetch('/api/games/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                slug,
+                channel: targetChannel,
+                title: titlePayload,
+                config: configPayload,
+                suite: suitePayload,
+                snapshot,
+              }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok || payload?.ok === false) {
+              const message = payload?.error || `Save request failed (${response.status})`;
+              throw new Error(message);
+            }
+          };
+
+          if (publish) {
+            await saveToChannel('draft');
+            await saveToChannel('published');
+          } else {
+            await saveToChannel(publish ? 'published' : normalizedDraftChannel);
           }
         }
 
@@ -3917,20 +3938,22 @@ export default function Admin() {
     } else {
       setUploadStatus(`Uploading ${safeName} to ${destinationLabel}…`);
     }
+    const formData = new FormData();
+    formData.append('file', file, safeName);
     const res = await fetch(`/api/media/upload?channel=${encodeURIComponent(channel)}&filename=${encodeURIComponent(remoteName)}`, {
       method: 'POST',
-      headers: { 'Content-Type': file.type || 'application/octet-stream' },
       credentials: 'include',
-      body: file,
+      body: formData,
     });
     const payload = await res.json().catch(() => ({}));
-    if (payload?.ok) {
+    if (res.ok && payload?.ok) {
       const key = payload?.key || `${poolPrefix}${remoteName}`;
       const publicUrl = payload?.publicUrl || '';
       setUploadStatus(`✅ Uploaded ${safeName} to ${MEDIA_BUCKET}/${key}`);
       return publicUrl;
     }
-    setUploadStatus(`❌ ${payload?.error || 'upload failed'}`);
+    const errorMessage = payload?.error || `upload failed (${res.status})`;
+    setUploadStatus(`❌ ${errorMessage}`);
     return '';
   }
 

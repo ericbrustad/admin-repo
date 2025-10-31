@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-01T07:45:00Z
+
+**You:** Fix the failing cover uploads, make sure saves and pin updates return real Supabase errors, standardize the media pool paths, and let me know that ChatGPT-5 thinking signed off.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, hardened the Supabase server client to require the service role key, rebuilt the media upload/list/save APIs around the channel-aware `media/draft|published/mediapool/` prefixes with real error propagation, wired the admin UI to use the new `/api/games/save` + `/api/pins/bulk-save` endpoints, and verified the cover uploader now streams FormData without faking success.
+
+---
+
 **Timestamp:** 2025-11-01T04:10:00Z
 
 **You:** Standardize the media pool to Supabase `media/draft/mediapool`, drop the top-right Saved Games dropdown, keep the Settings picker bold and dark, rename the Settings back button to “Update and Close Settings,” and make sure ChatGPT-5 thinking signs off.
