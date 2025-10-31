@@ -1,24 +1,19 @@
 // [Codex note] Uploads a file into channel-aware media pool.
-import { MEDIA_BUCKET, ensureMediaBucket, mediaPoolPrefix } from '../../../lib/mediaPool';
+import { channelBucket, mediaKey, normalizeChannel, sanitizeSlug } from '../../../lib/mediaPool';
+import { serverClient } from '../../../lib/supabaseClient';
 
 export const config = { api: { bodyParser: false } };
 
 function normalizeFilename(raw = '') {
   const cleaned = String(raw || '')
     .replace(/\\/g, '/')
-    .replace(/^\/+|\/+$/g, '');
-  const parts = cleaned
+    .replace(/^\/+|\/+$/g, '')
     .split('/')
-    .map((segment) => segment.trim().replace(/[^a-zA-Z0-9._-]+/g, '_'))
-    .filter(Boolean);
-  const joined = parts.join('/');
-  return joined.replace(/^(draft|public|published)\//i, '').replace(/^mediapool\//i, '') || `upload_${Date.now()}`;
-}
-
-function normalizeChannel(value) {
-  const raw = Array.isArray(value) ? value[0] : value;
-  const normalized = String(raw || 'draft').toLowerCase();
-  return normalized === 'published' ? 'published' : 'draft';
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+    .map((segment) => segment.replace(/[^a-zA-Z0-9._-]+/g, '_'))
+    .join('/');
+  return cleaned || `upload_${Date.now()}`;
 }
 
 export default async function handler(req, res) {
@@ -28,6 +23,7 @@ export default async function handler(req, res) {
   }
 
   const channel = normalizeChannel(req.query.channel);
+  const slug = sanitizeSlug(req.query.slug || req.query.game || 'default');
   let filename = String(req.query.filename || req.query.name || '').trim();
   let contentType = req.headers['content-type'] || 'application/octet-stream';
   let bytes = null;
@@ -51,14 +47,14 @@ export default async function handler(req, res) {
       for (const part of parts) {
         const [rawHeaders, rawBody] = part.split('\r\n\r\n');
         if (!rawHeaders || rawBody === undefined) continue;
-        const headers = rawHeaders.split('\r\n').map((line) => line.trim().toLowerCase());
-        const disposition = headers.find((line) => line.startsWith('content-disposition')) || '';
+        const headers = rawHeaders.split('\r\n').map((line) => line.trim());
+        const disposition = headers.find((line) => /^content-disposition/i.test(line)) || '';
         if (!/name="file"/i.test(disposition)) continue;
         const filenameMatch = disposition.match(/filename="([^"]*)"/i);
         if (filenameMatch && !filename) {
           filename = filenameMatch[1];
         }
-        const typeHeader = headers.find((line) => line.startsWith('content-type'));
+        const typeHeader = headers.find((line) => /^content-type/i.test(line));
         if (typeHeader) {
           const typeMatch = typeHeader.match(/content-type:\s*(.*)/i);
           if (typeMatch && typeMatch[1]) {
@@ -73,9 +69,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: 'Missing file field' });
       }
       bytes = found;
-      if (!filename) {
-        filename = `upload_${Date.now()}`;
-      }
     }
 
     if (!filename) {
@@ -86,13 +79,13 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Empty payload' });
     }
 
-    const supabase = await ensureMediaBucket();
-
+    const supabase = serverClient();
+    const bucket = channelBucket(channel);
     const safeName = normalizeFilename(filename);
-    const key = `${mediaPoolPrefix(channel)}${safeName}`.replace(/\/+/g, '/');
+    const key = mediaKey(slug, safeName, channel);
 
     const { error: uploadError } = await supabase.storage
-      .from(MEDIA_BUCKET)
+      .from(bucket)
       .upload(key, bytes, { upsert: true, contentType });
 
     if (uploadError) {
@@ -103,12 +96,36 @@ export default async function handler(req, res) {
       });
     }
 
-    const { data: publicData } = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(key);
+    if (bucket === 'media-pub') {
+      const { data: publicData } = supabase.storage.from(bucket).getPublicUrl(key);
+      const publicUrl = publicData?.publicUrl || null;
+      return res.status(200).json({
+        ok: true,
+        bucket,
+        key,
+        url: publicUrl,
+        publicUrl,
+        visibility: 'public',
+        channel,
+      });
+    }
+
+    const { data: signedData, error: signedError } = await supabase.storage
+      .from(bucket)
+      .createSignedUrl(key, 60 * 60);
+
+    if (signedError) {
+      return res.status(500).json({ ok: false, error: signedError.message || 'unable to sign url' });
+    }
+
+    const signedUrl = signedData?.signedUrl || null;
     return res.status(200).json({
       ok: true,
-      bucket: MEDIA_BUCKET,
+      bucket,
       key,
-      publicUrl: publicData?.publicUrl || null,
+      url: signedUrl,
+      publicUrl: signedUrl,
+      visibility: 'signed',
       channel,
     });
   } catch (error) {

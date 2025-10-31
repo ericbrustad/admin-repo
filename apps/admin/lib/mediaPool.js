@@ -1,38 +1,46 @@
-// [Codex note] Centralized media path conventions for Supabase Storage.
-import { serverClient } from './supabaseClient';
+// [Codex note] Media buckets split between private drafts and public publishes.
 
-export const MEDIA_BUCKET = 'media';
+export const MEDIA_BUCKET_DRAFT = 'media-priv';
+export const MEDIA_BUCKET_PUB = 'media-pub';
 
-// Drafts are default; published can be toggled later.
-export function mediaPoolPrefix(channel = 'draft') {
-  const normalized = String(channel || 'draft').toLowerCase();
-  return normalized === 'published' ? 'published/mediapool/' : 'draft/mediapool/';
+export function normalizeChannel(value = 'draft') {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return String(raw || 'draft').toLowerCase() === 'published' ? 'published' : 'draft';
 }
 
-// Optional helper to build a full key
-export function mediaKey(filename, channel = 'draft') {
-  const safeName = String(filename || '').replace(/^\/+|\/+$/g, '');
-  const prefix = mediaPoolPrefix(channel).replace(/\/+$/, '');
-  const key = `${prefix}/${safeName}`;
-  return key.replace(/\/+/g, '/');
+export function sanitizeSlug(value) {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const cleaned = String(raw || 'default').trim().toLowerCase();
+  return cleaned || 'default';
 }
 
-// Ensure the media bucket exists before attempting writes. Compatible with
-// both Supabase JS v1 and v2 (createBucket is only available in v2).
-export async function ensureMediaBucket() {
-  const supabase = serverClient();
-  try {
-    const { data: buckets } = await supabase.storage.listBuckets?.() ?? {};
-    const exists = Array.isArray(buckets) && buckets.some((bucket) => bucket.name === MEDIA_BUCKET);
-    if (!exists && typeof supabase.storage.createBucket === 'function') {
-      await supabase.storage.createBucket(MEDIA_BUCKET, { public: true }).catch(() => {});
-    }
-  } catch (error) {
-    if (error?.message && /Function listBuckets is not a function/i.test(error.message)) {
-      // Older SDK without listBuckets; best effort noop.
-    } else {
-      throw error;
-    }
-  }
-  return supabase;
+export function channelBucket(channel = 'draft') {
+  return normalizeChannel(channel) === 'published' ? MEDIA_BUCKET_PUB : MEDIA_BUCKET_DRAFT;
+}
+
+export function mediaPrefix(slug = 'default', channel = 'draft') {
+  const safeSlug = sanitizeSlug(slug).replace(/[^a-z0-9-_]+/g, '-');
+  const normalized = normalizeChannel(channel);
+  const base = normalized === 'published' ? 'games' : 'drafts';
+  return `${base}/${safeSlug}/mediapool/`.replace(/\/+/g, '/');
+}
+
+export function mediaKey(slug, filename, channel = 'draft') {
+  const safeSlug = sanitizeSlug(slug);
+  const normalizedName = String(filename || '')
+    .replace(/\\/g, '/')
+    .replace(/^\/+|\/+$/g, '')
+    .split('/')
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+    .map((segment) => segment.replace(/[^a-zA-Z0-9._-]+/g, '_'))
+    .join('/');
+  const trimmedName = normalizedName || `upload_${Date.now()}`;
+  return `${mediaPrefix(safeSlug, channel)}${trimmedName}`.replace(/\/+/g, '/');
+}
+
+// Backwards compatibility helpers for legacy callers expecting the older API.
+export const MEDIA_BUCKET = MEDIA_BUCKET_DRAFT;
+export function mediaPoolPrefix(channel = 'draft', slug = 'default') {
+  return mediaPrefix(slug, channel);
 }

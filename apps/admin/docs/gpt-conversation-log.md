@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-02T04:45:00Z
+
+**You:** Split the Supabase media storage so drafts live in a private bucket with signed URLs, keep published assets public, and make sure every upload/list call is slug-aware. Also make sure ChatGPT-5 thinking signs off once the admin UI points at the right buckets.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, introduced `media-priv`/`media-pub` helpers to choose the correct bucket per channel, updated the upload and list API routes to return signed draft URLs, and rewired the admin uploaders plus inventory lookups to pass the active slug so private drafts stay hidden until publish.
+
+---
+
 **Timestamp:** 2025-11-02T00:00:00Z
 
 **You:** Codex flagged the Supabase media bucket creation blowing up older SDKs—loop ChatGPT-5 in when you harden the helper and lock the client version.

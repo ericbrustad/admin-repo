@@ -154,6 +154,7 @@ export default function DevicesList({ devices = [], triggerDevices = [], onReord
               value={{ onCorrect: { enabled: !!local.enableOnCorrect, isTrigger: false }, onWrong: { enabled: !!local.enableOnWrong, isTrigger: false } }}
               mediaPool={[]}
               onChange={(v) => { /* keep integrated with saveEdit if you want */ console.log('responses changed', v); }}
+              slug="default"
             />
           </div>
         </div>

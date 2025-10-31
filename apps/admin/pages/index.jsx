@@ -23,7 +23,7 @@ import { createNewGame } from '../lib/games/createNewGame.js';
 import { nextMissionId, nextDeviceId } from '../lib/ids.js';
 import { updateAllPinsInSnapshot, deriveInitialGeo, collectPinsFromSnapshot } from '../lib/geo/updateAllPins.js';
 import { getDefaultGeo } from '../lib/geo/defaultGeo.js';
-import { MEDIA_BUCKET, mediaPoolPrefix } from '../lib/mediaPool';
+import { channelBucket, mediaKey, mediaPrefix } from '../lib/mediaPool';
 
 /* ───────────────────────── Helpers ───────────────────────── */
 async function fetchJsonSafe(url, fallback) {
@@ -175,17 +175,19 @@ const FOLDER_TO_TYPE = new Map([
 ]);
 
 /** Merge inventory across dirs so uploads show up everywhere */
-async function listInventory(dirs = ['mediapool']) { // dirs kept for signature compatibility
+async function listInventory(dirs = ['mediapool'], { slug = 'default' } = {}) { // dirs kept for signature compatibility
   const seen = new Set();
   const out = [];
   void dirs;
   const channels = ['draft', 'published'];
+  const normalizedSlug = String(slug || 'default').trim().toLowerCase() || 'default';
 
   await Promise.all(
     channels.map(async (channel) => {
       try {
         const params = new URLSearchParams();
         params.set('channel', channel);
+        params.set('slug', normalizedSlug);
         const response = await fetch(`/api/media/list?${params.toString()}`, {
           credentials: 'include',
           cache: 'no-store',
@@ -1959,7 +1961,8 @@ export default function Admin() {
   async function loadNewCoverOptions() {
     setNewCoverLookupLoading(true);
     try {
-      const items = await listInventory(['mediapool']);
+      const slugForLookup = (newGameSlug || activeSlug || 'default') || 'default';
+      const items = await listInventory(['mediapool'], { slug: slugForLookup });
       const filtered = (items || []).filter((item) => ['image', 'gif'].includes(item.type));
       setNewCoverOptions(filtered);
       if (!filtered.length) {
@@ -2124,13 +2127,14 @@ export default function Admin() {
   // media inventory for editors
   const [inventory, setInventory] = useState([]);
   const fetchInventory = useCallback(async () => {
+    const slugForInventory = (activeSlug || 'default') || 'default';
     try {
-      const items = await listInventory(['mediapool']);
+      const items = await listInventory(['mediapool'], { slug: slugForInventory });
       return Array.isArray(items) ? items : [];
     } catch {
       return [];
     }
-  }, []);
+  }, [activeSlug]);
   const syncInventory = useCallback(async () => {
     const items = await fetchInventory();
     setInventory(items);
@@ -3839,7 +3843,8 @@ export default function Admin() {
   // Project Health scan
   async function scanProject() {
     logConversation('You', 'Scanning media usage for unused files');
-    const inv = await listInventory(['mediapool']);
+    const slugForScan = (activeSlug || 'default') || 'default';
+    const inv = await listInventory(['mediapool'], { slug: slugForScan });
     const used = new Set();
 
     const iconUrlByKey = {};
@@ -3927,10 +3932,12 @@ export default function Admin() {
 
     const uniqueName = `${Date.now()}-${safeName}`;
     const channel = editChannel === 'published' ? 'published' : 'draft';
-    const poolPrefix = mediaPoolPrefix(channel);
+    const currentSlug = String(options.slug || activeSlug || 'default').trim().toLowerCase() || 'default';
+    const bucket = channelBucket(channel);
+    const poolPrefix = mediaPrefix(currentSlug, channel);
     const relativeFolder = resolvedFolder.replace(/^mediapool\/?/i, '');
     const remoteName = relativeFolder ? `${relativeFolder}/${uniqueName}` : uniqueName;
-    const destinationLabel = `${channel.toUpperCase()} @ ${MEDIA_BUCKET}/${poolPrefix}${relativeFolder}`.replace(/\/+/g, '/');
+    const destinationLabel = `${channel.toUpperCase()} @ ${bucket}/${poolPrefix}${relativeFolder}`.replace(/\/+/g, '/');
     const overWarning = (file.size || 0) > MEDIA_WARNING_BYTES;
     if (overWarning) {
       const sizeMb = Math.max(0.01, (file.size || 0) / (1024 * 1024));
@@ -3940,16 +3947,21 @@ export default function Admin() {
     }
     const formData = new FormData();
     formData.append('file', file, safeName);
-    const res = await fetch(`/api/media/upload?channel=${encodeURIComponent(channel)}&filename=${encodeURIComponent(remoteName)}`, {
+    const query = new URLSearchParams({
+      channel,
+      slug: currentSlug,
+      filename: remoteName,
+    });
+    const res = await fetch(`/api/media/upload?${query.toString()}`, {
       method: 'POST',
       credentials: 'include',
       body: formData,
     });
     const payload = await res.json().catch(() => ({}));
     if (res.ok && payload?.ok) {
-      const key = payload?.key || `${poolPrefix}${remoteName}`;
-      const publicUrl = payload?.publicUrl || '';
-      setUploadStatus(`✅ Uploaded ${safeName} to ${MEDIA_BUCKET}/${key}`);
+      const key = payload?.key || mediaKey(currentSlug, remoteName, channel);
+      const publicUrl = payload?.url || payload?.publicUrl || '';
+      setUploadStatus(`✅ Uploaded ${safeName} to ${bucket}/${key}`);
       return publicUrl;
     }
     const errorMessage = payload?.error || `upload failed (${res.status})`;
@@ -4311,7 +4323,8 @@ export default function Admin() {
     setCoverPickerLoading(true);
     setCoverPickerItems([]);
     try {
-      const items = await listInventory(['mediapool']);
+    const slugForPicker = (activeSlug || 'default') || 'default';
+    const items = await listInventory(['mediapool'], { slug: slugForPicker });
       const filtered = (items || []).filter(it => ['image', 'gif'].includes(it.type));
       setCoverPickerItems(filtered);
     } catch {
@@ -5164,7 +5177,13 @@ export default function Admin() {
                     onReset={() => setMissionResponsesError(null)}
                     resetKeys={[missionResponsesError, editing, inventory]}
                   >
-                    <InlineMissionResponses editing={editing} setEditing={setEditing} inventory={inventory} />
+                    <InlineMissionResponses
+                      editing={editing}
+                      setEditing={setEditing}
+                      inventory={inventory}
+                      channel={editChannel}
+                      slug={activeSlug || 'default'}
+                    />
                   </SafeBoundary>
 
                   <hr style={S.hr} />
@@ -6168,6 +6187,7 @@ export default function Admin() {
             return url;
           }}
           onInventoryRefresh={syncInventory}
+          slug={activeSlug || 'default'}
         />
       )}
 
@@ -7986,6 +8006,7 @@ function MediaPoolTab({
   setUploadStatus,
   uploadToRepo,
   onInventoryRefresh,
+  slug: incomingSlug = 'default',
 }) {
   const [inv, setInv] = useState([]);
   const [busy, setBusy] = useState(false);
@@ -8050,12 +8071,13 @@ function MediaPoolTab({
     { value: 'other', label: 'Other' },
   ];
 
-  useEffect(() => { refreshInventory(); }, []);
+  useEffect(() => { refreshInventory(); }, [incomingSlug]);
 
   async function refreshInventory() {
     setBusy(true);
     try {
-      const items = await listInventory(['mediapool']);
+      const slugForInventory = String(incomingSlug || 'default').trim().toLowerCase() || 'default';
+      const items = await listInventory(['mediapool'], { slug: slugForInventory });
       setInv(items || []);
       if (typeof onInventoryRefresh === 'function') {
         try { await onInventoryRefresh(); } catch {}

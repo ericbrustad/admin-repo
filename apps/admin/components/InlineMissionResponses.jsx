@@ -72,7 +72,13 @@ function fallbackLabelFromUrl(u) {
   }
 }
 
-export default function InlineMissionResponses({ editing, setEditing, inventory = [] }) {
+export default function InlineMissionResponses({
+  editing,
+  setEditing,
+  inventory = [],
+  channel = 'draft',
+  slug = 'default',
+}) {
   const safeEditing = useMemo(() => normalizeMission(editing), [editing]);
   const [devices, setDevices] = useState([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
@@ -154,7 +160,14 @@ export default function InlineMissionResponses({ editing, setEditing, inventory 
       const remoteName = `${cleanFolder}/${timestamp}-${safeName}`.replace(/\/+/, "/");
       const form = new FormData();
       form.append("file", file, safeName);
-      const res = await fetch(`/api/media/upload?channel=draft&filename=${encodeURIComponent(remoteName)}`, {
+      const normalizedChannel = (channel === 'published') ? 'published' : 'draft';
+      const normalizedSlug = (slug || 'default').toString().trim().toLowerCase() || 'default';
+      const qs = new URLSearchParams({
+        channel: normalizedChannel,
+        slug: normalizedSlug,
+        filename: remoteName,
+      });
+      const res = await fetch(`/api/media/upload?${qs.toString()}`, {
         method: "POST",
         credentials: "include",
         body: form,
@@ -163,7 +176,7 @@ export default function InlineMissionResponses({ editing, setEditing, inventory 
       if (!res.ok || j?.ok === false) {
         throw new Error(j?.error || `upload failed (${res.status})`);
       }
-      return j.publicUrl || "";
+      return j.url || j.publicUrl || "";
     } catch (e) {
       console.error("upload failed", e);
       alert("Upload failed: " + (e?.message || e));
