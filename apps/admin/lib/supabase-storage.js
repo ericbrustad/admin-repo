@@ -1,14 +1,17 @@
 import { Buffer } from 'node:buffer';
+import { MEDIA_BUCKET, buildKey, prefixFor } from './storage/keys.js';
 
 const {
   SUPABASE_URL = '',
   SUPABASE_ANON_KEY = '',
   SUPABASE_SERVICE_ROLE_KEY = '',
-  SUPABASE_MEDIA_BUCKET = 'media',
-  SUPABASE_MEDIA_PREFIX = 'mediapool',
   SUPABASE_DATA_BUCKET,
   SUPABASE_DATA_PREFIX = 'admin-data',
 } = process.env;
+
+const MEDIA_BASE = (process.env.SUPABASE_MEDIA_PREFIX || 'mediapool/')
+  .replace(/^\/+|\/+$/g, '')
+  .replace(/\/+$/g, '') || 'mediapool';
 
 const supabaseBaseUrl = (SUPABASE_URL || '').replace(/\/+$/, '');
 const storageBaseUrl = supabaseBaseUrl ? `${supabaseBaseUrl}/storage/v1` : '';
@@ -24,11 +27,11 @@ function getAuthKey(preferService = true) {
 }
 
 export function isSupabaseMediaEnabled() {
-  return hasSupabaseUrl() && Boolean(SUPABASE_MEDIA_BUCKET) && Boolean(getAuthKey(true));
+  return hasSupabaseUrl() && Boolean(MEDIA_BUCKET) && Boolean(getAuthKey(true));
 }
 
 export function isSupabaseDataEnabled() {
-  return hasSupabaseUrl() && Boolean(SUPABASE_DATA_BUCKET || SUPABASE_MEDIA_BUCKET) && Boolean(getAuthKey(true));
+  return hasSupabaseUrl() && Boolean(SUPABASE_DATA_BUCKET || MEDIA_BUCKET) && Boolean(getAuthKey(true));
 }
 
 function encodeObjectPath(objectPath = '') {
@@ -46,14 +49,21 @@ function normalizePath(...segments) {
     .join('/');
 }
 
-function buildMediaPath(folder = '', fileName = '') {
-  const prefix = (SUPABASE_MEDIA_PREFIX || '').replace(/^\/+|\/+$/g, '');
-  const normalizedFolder = String(folder || '').replace(/^\/+|\/+$/g, '');
-  const startsWithPrefix = prefix && normalizedFolder.toLowerCase().startsWith(prefix.toLowerCase());
-  if (startsWithPrefix) {
-    return normalizePath(normalizedFolder, fileName);
-  }
-  return normalizePath(prefix, normalizedFolder, fileName);
+function escapeRegExp(value = '') {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripMediaBase(input = '') {
+  const normalized = String(input || '').replace(/^\/+|\/+$/g, '');
+  if (!normalized) return '';
+  const basePattern = new RegExp(`^${escapeRegExp(MEDIA_BASE)}(?:\/|$)`, 'i');
+  return normalized.replace(basePattern, '');
+}
+
+function buildMediaPath(folder = '', fileName = '', { channel = 'draft' } = {}) {
+  const combined = normalizePath(folder, fileName);
+  const relative = stripMediaBase(combined);
+  return buildKey({ channel, subpath: relative });
 }
 
 function buildDataPath(kind = '', slug = '') {
@@ -226,7 +236,7 @@ function guessContentType(fileName = '') {
   }
 }
 
-export async function uploadSupabaseMedia({ folder, fileName, contentBase64, sizeBytes }) {
+export async function uploadSupabaseMedia({ folder, fileName, contentBase64, sizeBytes, channel = 'draft' }) {
   if (!isSupabaseMediaEnabled()) {
     return { ok: false, skipped: true, reason: 'Supabase media disabled' };
   }
@@ -234,9 +244,9 @@ export async function uploadSupabaseMedia({ folder, fileName, contentBase64, siz
   if (!buffer) {
     return { ok: false, skipped: true, reason: 'No binary payload decoded' };
   }
-  const objectPath = buildMediaPath(folder, fileName);
+  const objectPath = buildMediaPath(folder, fileName, { channel });
   const uploadResult = await uploadObject(
-    SUPABASE_MEDIA_BUCKET,
+    MEDIA_BUCKET,
     objectPath,
     buffer,
     { contentType: guessContentType(fileName), upsert: true },
@@ -250,16 +260,24 @@ export async function uploadSupabaseMedia({ folder, fileName, contentBase64, siz
   };
 }
 
-export async function listSupabaseMedia(dir) {
+export async function listSupabaseMedia(dir, { channel = 'draft', prefixOverride } = {}) {
   if (!isSupabaseMediaEnabled()) return [];
-  const objectPrefix = buildMediaPath(dir, '');
-  const listResult = await listObjects(SUPABASE_MEDIA_BUCKET, objectPrefix, { recursive: true });
+  const basePrefix = (prefixOverride && String(prefixOverride)) || prefixFor(channel);
+  const sanitizedBase = String(basePrefix || '')
+    .replace(/\/+$/, '')
+    .replace(/^\/+/, '');
+  const cleanedDir = stripMediaBase(String(dir || ''));
+  const objectPrefix = [sanitizedBase, cleanedDir]
+    .filter(Boolean)
+    .join('/')
+    .replace(/\/+/g, '/');
+  const listResult = await listObjects(MEDIA_BUCKET, objectPrefix, { recursive: true });
   if (!listResult.ok) return [];
   return listResult.items.map((item) => ({
     name: item.name,
     supabasePath: item.path,
-    bucket: SUPABASE_MEDIA_BUCKET,
-    publicUrl: buildObjectUrl(SUPABASE_MEDIA_BUCKET, item.path, { isPublic: true }),
+    bucket: MEDIA_BUCKET,
+    publicUrl: buildObjectUrl(MEDIA_BUCKET, item.path, { isPublic: true }),
     size: item.size,
     updatedAt: item.updatedAt,
   }));
@@ -299,7 +317,7 @@ export async function syncSupabaseJson(kind, slug, payload) {
   if (!isSupabaseDataEnabled()) {
     return { ok: false, skipped: true, reason: 'Supabase data disabled' };
   }
-  const targetBucket = SUPABASE_DATA_BUCKET || SUPABASE_MEDIA_BUCKET;
+  const targetBucket = SUPABASE_DATA_BUCKET || MEDIA_BUCKET;
   const objectPath = buildDataPath(kind, slug);
   const buffer = Buffer.from(JSON.stringify(payload, null, 2));
   const uploadResult = await uploadObject(
@@ -321,7 +339,7 @@ export function buildSupabasePublicUrl(bucket, objectPath) {
   return buildObjectUrl(bucket, objectPath, { isPublic: true });
 }
 
-export async function deleteSupabaseMedia({ bucket = SUPABASE_MEDIA_BUCKET, path }) {
+export async function deleteSupabaseMedia({ bucket = MEDIA_BUCKET, path }) {
   if (!path) {
     return { ok: false, skipped: true, reason: 'Missing object path' };
   }

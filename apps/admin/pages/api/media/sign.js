@@ -1,12 +1,16 @@
+import { MEDIA_BUCKET, buildKey } from '../../../lib/storage/keys.js';
+
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const MEDIA_BUCKET = process.env.SUPABASE_MEDIA_BUCKET || 'media';
-const IMPORTS_BUCKET = process.env.SUPABASE_IMPORTS_BUCKET || 'imports';
 
 function applyCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'authorization, x-client-info, apikey, content-type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+}
+
+function sanitizeChannel(value) {
+  return String(value || '').toLowerCase().trim() || 'draft';
 }
 
 function normalizePath(input = '') {
@@ -26,36 +30,41 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = req.body && typeof req.body === 'object' ? req.body : {};
-    const bucket = String(body.bucket || MEDIA_BUCKET);
-    const path = normalizePath(body.path || '');
-    const contentType = typeof body.contentType === 'string' && body.contentType
-      ? body.contentType
-      : 'application/octet-stream';
-    const upsert = Boolean(body.upsert);
-
-    if (!path) {
-      return res.status(400).json({ ok: false, error: 'Missing path' });
-    }
-
-    const allowedBuckets = new Set([MEDIA_BUCKET, IMPORTS_BUCKET]);
-    if (!allowedBuckets.has(bucket)) {
-      return res.status(403).json({ ok: false, error: 'Bucket not allowed' });
-    }
-
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       throw new Error('Missing Supabase configuration');
     }
 
-    const target = `${SUPABASE_URL.replace(/\/+$/, '')}/functions/v1/sign-upload-url`;
+    const body = req.body && typeof req.body === 'object' ? req.body : {};
+    const contentType = typeof body.contentType === 'string' && body.contentType
+      ? body.contentType
+      : 'application/octet-stream';
+    const channel = sanitizeChannel(body.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || 'draft');
+    const subpath = normalizePath(body.subpath || '');
+    const rawPath = normalizePath(body.path || '');
+
+    const bucket = MEDIA_BUCKET;
+    const key = rawPath && !/^media\//i.test(rawPath)
+      ? rawPath
+      : buildKey({ channel, subpath });
+
+    if (!key) {
+      return res.status(400).json({ ok: false, error: 'Missing target path' });
+    }
+
+    const baseUrl = SUPABASE_URL.replace(/\/+$/, '');
+    const encodedBucket = encodeURIComponent(bucket);
+    const encodedKey = encodeURIComponent(key);
+    const target = `${baseUrl}/storage/v1/object/upload/sign/${encodedBucket}/${encodedKey}`;
+
     const response = await fetch(target, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
         apikey: SUPABASE_SERVICE_ROLE_KEY,
-        'Content-Type': 'application/json',
+        'content-type': 'application/json',
+        'x-client-info': 'esx-admin/1.0',
       },
-      body: JSON.stringify({ bucket, path, contentType, upsert }),
+      body: JSON.stringify({ contentType }),
     });
 
     const text = await response.text();
@@ -71,7 +80,7 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ ok: false, error: message });
     }
 
-    return res.status(200).json(payload || { ok: true });
+    return res.status(200).json(payload || { ok: true, bucket, key });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unexpected error';
     return res.status(500).json({ ok: false, error: message });
