@@ -5,6 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { MEDIA_BUCKET, prefixFor } from '../../lib/storage/keys.js';
 import { GAME_ENABLED } from '../../lib/game-switch.js';
 import { readManifest, getManifestDebugInfo } from '../../lib/media-manifest.js';
 import { listSupabaseMedia, isSupabaseMediaEnabled } from '../../lib/supabase-storage.js';
@@ -339,6 +340,9 @@ function enrichMeta(relativePath = '') {
 
 export default async function handler(req, res) {
   try {
+    const rawChannel = req.query.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || 'draft';
+    const channel = String(rawChannel || '').toLowerCase().trim() || 'draft';
+    const channelPrefix = req.query.prefix ? String(req.query.prefix) : prefixFor(channel);
     const dirParam = (req.query.dir || 'mediapool').toString();
     const dir = resolveDir(dirParam);
     const cwd = process.cwd();
@@ -416,7 +420,7 @@ export default async function handler(req, res) {
 
     if (isSupabaseMediaEnabled()) {
       try {
-        const supabaseItems = await listSupabaseMedia(dir);
+        const supabaseItems = await listSupabaseMedia(dir, { channel, prefixOverride: channelPrefix });
         for (const item of supabaseItems) {
           const name = item.name || item.supabasePath?.split('/')?.pop() || '';
           const supabaseKeySource = item.supabasePath || item.publicUrl || name;
@@ -454,7 +458,7 @@ export default async function handler(req, res) {
             notes: 'Supabase storage object',
             existsOnDisk: false,
             supabase: {
-              bucket: item.bucket,
+              bucket: item.bucket || MEDIA_BUCKET,
               path: item.supabasePath,
               size: item.size,
               updatedAt: item.updatedAt,
