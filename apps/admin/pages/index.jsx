@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import SavedGamesSelect from '../components/SavedGamesSelect';
 import HeaderBar from '../components/HeaderBar';
@@ -25,6 +26,15 @@ import { nextMissionId, nextDeviceId } from '../lib/ids.js';
 import { updateAllPinsInSnapshot, deriveInitialGeo, collectPinsFromSnapshot } from '../lib/geo/updateAllPins.js';
 import { getDefaultGeo } from '../lib/geo/defaultGeo.js';
 import { channelBucket, mediaKey, mediaPrefix } from '../lib/mediaPool';
+
+const MapOverview = dynamic(
+  () => Promise.resolve({ default: MapOverviewClient }),
+  { ssr: false }
+);
+const MapPicker = dynamic(
+  () => Promise.resolve({ default: MapPickerClient }),
+  { ssr: false }
+);
 
 /* ───────────────────────── Helpers ───────────────────────── */
 async function fetchJsonSafe(url, fallback) {
@@ -7791,7 +7801,7 @@ const S = {
 };
 
 /* MapOverview — shows missions + devices */
-function MapOverview({
+function MapOverviewClient({
   missions = [], devices = [], icons = DEFAULT_ICONS, showRings = true,
   interactive = false, draftDevice = null,
   selectedDevIdx = null, selectedMissionIdx = null,
@@ -7934,7 +7944,7 @@ function MapOverview({
 }
 
 /* MapPicker — geofence mini map with draggable marker + radius slider (5–500 m) */
-function MapPicker({ lat, lng, radius = 25, onChange, center = { lat:44.9778, lng:-93.2650 } }) {
+function MapPickerClient({ lat, lng, radius = 25, onChange, center = { lat:44.9778, lng:-93.2650 } }) {
   const divRef = useRef(null);
   const [leafletReady, setLeafletReady] = useState(!!(typeof window !== 'undefined' && window.L));
   const [rad, setRad] = useState(clamp(Number(radius) || 25, 5, 500));
