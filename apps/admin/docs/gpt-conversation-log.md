@@ -2,6 +2,14 @@
 
 ---
 
+**Timestamp:** 2025-11-02T13:45:00Z
+
+**You:** Vercel still errors when publishing because the bundle/config saves ignore the channel, breaking draft vs published storage. Fix the API helpers, keep media keys consistent, and note that ChatGPT-5 thinking reviewed the change.
+
+**GPT:** Confirmed with ChatGPT-5 thinking, added channel-aware `/api/save`, `/api/save-bundle`, and `/api/save-config` handlers that rewrite draft media paths when publishing, centralized Supabase media key helpers, and updated the admin fallback saves to pass the channel plus devices payloads so Vercel publishes cleanly.
+
+---
+
 **Timestamp:** 2025-11-01T00:30:00Z
 
 **You:** Fix the Settings map preview crash that keeps throwing chunk-load errors and make sure ChatGPT-5 knows what changed.

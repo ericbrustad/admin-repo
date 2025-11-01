@@ -2,8 +2,10 @@
 // Bucket stays "media"; keys are "draft/mediapool/..." or "published/mediapool/...".
 export const MEDIA_BUCKET =
   process.env.SUPABASE_MEDIA_BUCKET || 'media';
-const BASE = (process.env.SUPABASE_MEDIA_PREFIX || 'mediapool/')
-  .replace(/^\/+|\/+$/g, '') + '/';
+
+const BASE =
+  (process.env.SUPABASE_MEDIA_PREFIX || 'mediapool/')
+    .replace(/^\/+|\/+$/g, '') + '/';
 
 export function buildKey({ channel = 'draft', subpath = '' } = {}) {
   const c = String(channel).toLowerCase().trim() || 'draft';
@@ -24,3 +26,4 @@ export function legacyCandidates(subpath = '') {
     `mediapool/draft/${s}`, // legacy
   ].map(p => p.replace(/\/+/g, '/'));
 }
+
