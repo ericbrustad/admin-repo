@@ -1,9 +1,19 @@
 // CODEX NOTE: Installs the global bridge (for hiding legacy buttons).
 // No global Settings menu is rendered here.
 import '../styles/globals.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { installGlobalSettingsBridge } from '../lib/settingsBridge';
+
+// Load map engine on the client only to avoid SSR/hydration crashes
+const MapEngineProvider = dynamic(
+  () =>
+    import('../components/maps/EngineProvider').then(
+      (m) => m.MapEngineProvider || m.default
+    ),
+  { ssr: false }
+);
 
 function reportClient(err, info) {
   try {
@@ -138,6 +148,9 @@ export default function App({ Component, pageProps }) {
       <ClientMapProvider>
         <Component {...pageProps} />
       </ClientMapProvider>
+      <MapEngineProvider>
+        <Component {...pageProps} />
+      </MapEngineProvider>
     </RootErrorBoundary>
   );
 }
