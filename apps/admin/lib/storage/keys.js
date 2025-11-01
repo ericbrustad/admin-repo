@@ -1,5 +1,7 @@
-// CHORE(codex): centralize media key building (channel-first)
-export const MEDIA_BUCKET = process.env.SUPABASE_MEDIA_BUCKET || 'media';
+// CHORE(codex): Centralize media key building (channel-first).
+// Bucket stays "media"; keys are "draft/mediapool/..." or "published/mediapool/...".
+export const MEDIA_BUCKET =
+  process.env.SUPABASE_MEDIA_BUCKET || 'media';
 const BASE = (process.env.SUPABASE_MEDIA_PREFIX || 'mediapool/')
   .replace(/^\/+|\/+$/g, '') + '/';
 
@@ -14,7 +16,7 @@ export function prefixFor(channel = 'draft') {
   return `${c}/${BASE}`.replace(/\/+/g, '/');
 }
 
-// Optional: temp back-compat for legacy 'mediapool/draft/...'
+// Optional back-compat for legacy "mediapool/draft/..." (pre channel-first).
 export function legacyCandidates(subpath = '') {
   const s = String(subpath || '').replace(/^\/+/, '');
   return [

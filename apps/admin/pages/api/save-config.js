@@ -1,95 +1,79 @@
-import { serverClient } from '../../lib/supabaseClient';
-import { upsertReturning } from '../../lib/supabase/upsertReturning.js';
+// CHORE(codex): Honor channel=draft|published for saving just the config (settings.json).
+import { createClient } from '@supabase/supabase-js';
 
-function normalizeSlug(value) {
-  const slug = String(value || '').trim();
-  if (!slug) return 'default';
-  if (slug === 'root' || slug === 'legacy-root') return 'default';
-  return slug;
+function normalizeChannel(value, fallback = 'draft') {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const c = String(raw ?? fallback ?? 'draft').trim().toLowerCase();
+  return c === 'published' ? 'published' : 'draft';
+}
+
+function rewriteDraftToPublished(obj) {
+  try {
+    const s = JSON.stringify(obj);
+    const out = s
+      .replaceAll('/draft/mediapool/', '/published/mediapool/')
+      .replaceAll('draft/mediapool/', 'published/mediapool/')
+      .replaceAll('mediapool/draft/', 'published/mediapool/');
+    return JSON.parse(out);
+  } catch {
+    return obj;
+  }
 }
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    return res.status(405).end('Method Not Allowed');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
-
-  let supabase;
   try {
-    supabase = serverClient();
-  } catch (error) {
-    return res.status(500).json({ ok: false, error: error?.message || 'Supabase configuration missing' });
-  }
-
-  try {
-    const { slug: querySlug } = req.query || {};
-    const { config: configInput } = req.body || {};
-    if (!configInput) {
-      return res.status(400).json({ ok: false, error: 'Missing config payload' });
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) {
+      return res.status(500).json({ ok: false, error: 'Missing Supabase env (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)' });
     }
 
-    const slug = normalizeSlug(querySlug);
-    const devices = Array.isArray(configInput?.devices)
-      ? configInput.devices
-      : Array.isArray(configInput?.powerups)
-        ? configInput.powerups
-        : [];
-    const powerups = Array.isArray(configInput?.powerups) ? configInput.powerups : devices;
-    const now = new Date().toISOString();
+    const DATA_BUCKET = process.env.SUPABASE_DATA_BUCKET || 'admin-data';
+    const DATA_PREFIX = (process.env.SUPABASE_DATA_PREFIX || 'data/')
+      .replace(/^\/+|\/+$/g, '') + '/';
 
-    const gameMeta = configInput?.game ?? {};
-    const appearance = configInput?.appearance ?? {};
-    const appearanceSkin = configInput?.appearanceSkin ?? null;
-    const appearanceTone = configInput?.appearanceTone ?? 'light';
-    const tags = Array.isArray(gameMeta?.tags) ? gameMeta.tags : [];
-    const mode = configInput?.splash?.mode || gameMeta.mode || null;
+    const supa = createClient(url, key, { auth: { persistSession: false } });
 
-    const gameResult = await upsertReturning(supabase, 'games', {
-      slug,
-      channel: 'draft',
-      title: gameMeta?.title || slug,
-      type: gameMeta?.type || null,
-      cover_image: gameMeta?.coverImage || null,
-      config: configInput,
-      map: configInput?.map || {},
-      appearance,
-      theme: appearance,
-      appearance_skin: appearanceSkin,
-      appearance_tone: appearanceTone,
-      mode,
-      short_description: gameMeta?.shortDescription || null,
-      long_description: gameMeta?.longDescription || null,
-      tags,
-      status: 'draft',
-      updated_at: now,
-    }, { onConflict: 'slug,channel' });
+    const slug = String(req.query.slug || '').trim() || 'default';
+    const channel = normalizeChannel(
+      req.query.channel || req.body?.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL
+    );
+    const wantsPublished = channel === 'published';
 
-    const gameRow = Array.isArray(gameResult) ? gameResult[0] : gameResult;
-    const gameId = gameRow?.id || null;
+    let { config = {} } = (req.body || {});
+    if (wantsPublished) config = rewriteDraftToPublished(config);
 
-    const devicePayload = {
-      game_slug: slug,
-      channel: 'draft',
-      items: devices,
-      updated_at: now,
-    };
-    if (gameId) devicePayload.game_id = gameId;
+    const base = `${channel}/${DATA_PREFIX}${slug}/`; // e.g. published/data/demo/
+    const enc = new TextEncoder();
+    const blob = new Blob([enc.encode(JSON.stringify(config, null, 2))], { type: 'application/json' });
 
-    const powerupPayload = {
-      game_slug: slug,
-      channel: 'draft',
-      items: powerups,
-      updated_at: now,
-    };
-    if (gameId) powerupPayload.game_id = gameId;
+    const path = `${base}settings.json`.replace(/\/+/g, '/');
+    const { error } = await supa.storage.from(DATA_BUCKET).upload(path, blob, {
+      upsert: true,
+      contentType: 'application/json',
+    });
+    if (error) throw new Error(error.message);
 
-    await Promise.all([
-      upsertReturning(supabase, 'devices', devicePayload, { onConflict: 'game_slug,channel' }),
-      upsertReturning(supabase, 'powerups', powerupPayload, { onConflict: 'game_slug,channel' }).catch(() => null),
-    ]);
+    if (wantsPublished) {
+      const rel = {
+        channel: 'published',
+        slug,
+        releasedAt: new Date().toISOString(),
+      };
+      const rblob = new Blob([enc.encode(JSON.stringify(rel, null, 2))], { type: 'application/json' });
+      await supa.storage.from(DATA_BUCKET).upload(
+        `releases/${slug}.json`,
+        rblob,
+        { upsert: true, contentType: 'application/json' }
+      );
+    }
 
-    return res.status(200).json({ ok: true, slug, updated_at: now });
-  } catch (error) {
-    return res.status(500).json({ ok: false, error: error?.message || 'Failed to save config' });
+    return res.json({ ok: true, channel, path });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: String(e?.message || e) });
   }
 }
