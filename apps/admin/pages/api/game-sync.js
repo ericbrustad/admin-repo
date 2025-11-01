@@ -1,9 +1,10 @@
 /*
   Robust Draft/Publish/Live sync for Admin → Supabase Storage (no new deps).
   Endpoints:
-    POST ?op=save        -> saves a DRAFT snapshot and updates pointers
-    POST ?op=publish     -> saves PUBLISHED snapshot, updates pointers, optional mirror
-    POST ?op=make-live   -> flips index.liveChannel to "published"
+    GET  ?op=selftest  -> verifies env + storage write access
+    POST ?op=save      -> saves a DRAFT snapshot and updates pointers
+    POST ?op=publish   -> saves PUBLISHED snapshot, updates pointers, optional mirror
+    POST ?op=make-live -> flips index.liveChannel to "published"
 
   Storage layout (bucket: game-config):
     game-config/<slug>/index.json
@@ -27,6 +28,13 @@
 */
 
 import { createClient } from '@supabase/supabase-js';
+
+export const config = {
+  api: {
+    // Drafts with many missions can exceed 1MB and cause a 500. Give us headroom.
+    bodyParser: { sizeLimit: '8mb' },
+  },
+};
 
 /** @typedef {'draft' | 'published'} Channel */
 
@@ -54,9 +62,13 @@ function normalizeChannel(value, fallback = 'draft') {
 
 async function ensureBucket(supabase, bucket) {
   const { data: existing } = await supabase.storage.getBucket(bucket);
-  if (existing) return;
-  // public bucket so game-web can fetch directly by URL if desired (RLS still enforced for writes)
-  await supabase.storage.createBucket(bucket, { public: true, fileSizeLimit: '50mb' });
+  if (!existing) {
+    const { error } = await supabase.storage.createBucket(bucket, {
+      public: true,
+      fileSizeLimit: '50mb',
+    });
+    if (error) throw new Error(`createBucket(${bucket}) failed: ${error.message}`);
+  }
 }
 
 async function putJSON(supabase, bucket, path, obj) {
@@ -65,7 +77,7 @@ async function putJSON(supabase, bucket, path, obj) {
     upsert: true,
     contentType: 'application/json; charset=utf-8',
   });
-  if (error) throw error;
+  if (error) throw new Error(`upload ${path} failed: ${error.message}`);
 }
 
 async function getJSON(supabase, bucket, path) {
@@ -80,25 +92,57 @@ async function getJSON(supabase, bucket, path) {
   }
 }
 
+function ok(res, data, status = 200) {
+  return res.status(status).json({ ok: true, ...data });
+}
+
+function fail(res, message, detail, status = 500) {
+  const out = { ok: false, error: message };
+  if (detail) out.detail = `${detail}`.slice(0, 800);
+  return res.status(status).json(out);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method Not Allowed' });
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return fail(res, 'Method Not Allowed', null, 405);
+  }
 
   const op = String(req.query.op || 'save').toLowerCase();
+  const BUCKET = process.env.GAME_CONFIG_BUCKET || 'game-config';
 
   try {
-    const supabase = serverClient();
-    const BUCKET = 'game-config';
-    await ensureBucket(supabase, BUCKET);
+    // ── Self-test: quick browser check for env + storage access ────────────────
+    if (op === 'selftest') {
+      const supabase = serverClient();
+      const report = { env: {}, storage: {} };
+
+      for (const key of ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']) {
+        report.env[key] = !!process.env[key];
+      }
+
+      try {
+        await ensureBucket(supabase, BUCKET);
+        report.storage.bucket = BUCKET;
+        const probe = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        await putJSON(supabase, BUCKET, '_health/ok.json', { probe, t: new Date().toISOString() });
+        report.storage.write = true;
+      } catch (error) {
+        return fail(res, 'Selftest storage failed', error?.message || error, 500);
+      }
+
+      return ok(res, { op, report });
+    }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+    const slug = String(body.slug || req.query.slug || '').trim().toLowerCase();
+    if (!slug) return fail(res, 'Missing slug', null, 400);
 
-    // Basic validation
-    const slug = String(body.slug || '').trim().toLowerCase();
-    if (!slug) return res.status(400).json({ ok: false, error: 'Missing slug' });
+    const supabase = serverClient();
+    await ensureBucket(supabase, BUCKET);
 
     const title = String(body.title || slug);
     const flags = { GAME_ENABLED: !!(body.flags && body.flags.GAME_ENABLED) };
@@ -106,7 +150,24 @@ export default async function handler(req, res) {
     /** @type {Channel} */
     const channel = op === 'publish' ? 'published' : normalizeChannel(body.channel || defaultChannel);
 
-    // Snapshot payload the game-web needs
+    if (op === 'make-live') {
+      const indexPath = `${slug}/index.json`;
+      const index =
+        (await getJSON(supabase, BUCKET, indexPath)) ?? {
+          schemaVersion: 1,
+          slug,
+          title,
+          channels: {},
+          liveChannel: defaultChannel,
+          flags,
+          updatedAt: new Date().toISOString(),
+        };
+      index.liveChannel = 'published';
+      index.updatedAt = new Date().toISOString();
+      await putJSON(supabase, BUCKET, indexPath, index);
+      return ok(res, { op, slug, liveChannel: index.liveChannel });
+    }
+
     const snapshot = {
       schemaVersion: 1,
       slug,
@@ -125,7 +186,12 @@ export default async function handler(req, res) {
       body.versionId ||
       (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
-    // Load existing index
+    const versionPath = `${slug}/versions/${versionId}.json`;
+    await putJSON(supabase, BUCKET, versionPath, snapshot);
+
+    const channelCurrentPath = `${slug}/${channel}/current.json`;
+    await putJSON(supabase, BUCKET, channelCurrentPath, { versionId, path: versionPath, snapshot });
+
     const indexPath = `${slug}/index.json`;
     const index =
       (await getJSON(supabase, BUCKET, indexPath)) ?? {
@@ -138,38 +204,15 @@ export default async function handler(req, res) {
         updatedAt: new Date().toISOString(),
       };
 
-    if (op === 'make-live') {
-      index.liveChannel = 'published';
-      index.updatedAt = new Date().toISOString();
-      await putJSON(supabase, BUCKET, indexPath, index);
-      return res
-        .status(200)
-        .json({ ok: true, op, slug, liveChannel: index.liveChannel, hint: 'index.json updated' });
-    }
-
-    // Write versioned snapshot
-    const versionPath = `${slug}/versions/${versionId}.json`;
-    await putJSON(supabase, BUCKET, versionPath, snapshot);
-
-    // Update channel pointers
-    const channelCurrentPath = `${slug}/${channel}/current.json`;
-    await putJSON(supabase, BUCKET, channelCurrentPath, { versionId, path: versionPath, snapshot });
-
     if (!index.channels) index.channels = {};
     index.title = title;
     index.flags = flags;
     index.channels[channel] = { currentVersionId: versionId, path: `${channel}/current.json` };
-    // If this is the first thing ever saved, keep liveChannel sensible
     if (!index.liveChannel) index.liveChannel = defaultChannel;
     index.updatedAt = new Date().toISOString();
-
     await putJSON(supabase, BUCKET, indexPath, index);
 
-    // Mirror to "public pointer" for game-web if enabled and we're publishing
     if (flags.GAME_ENABLED && channel === 'published') {
-      // Simple public mirror path (same bucket) that game-web can fetch without walking pointers.
-      // You can point game-web to this URL directly if you want:
-      //   /storage/v1/object/public/game-config/<slug>/published/current.json
       const mirrorPath = `${slug}/live/current.json`;
       await putJSON(supabase, BUCKET, mirrorPath, {
         versionId,
@@ -179,8 +222,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({
-      ok: true,
+    return ok(res, {
       op,
       slug,
       channel,
@@ -193,16 +235,6 @@ export default async function handler(req, res) {
       },
     });
   } catch (err) {
-    const message = (err?.message || String(err)).slice(0, 800);
-    return res.status(500).json({
-      ok: false,
-      error: message,
-      tip: [
-        'Verify SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set for this environment.',
-        'Ensure Storage bucket "game-config" can be created (first run) or already exists.',
-        'Check request body includes { slug } and your data is JSON-serializable.',
-      ],
-    });
+    return fail(res, err?.message || String(err));
   }
 }
-
