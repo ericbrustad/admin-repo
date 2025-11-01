@@ -2807,28 +2807,40 @@ export default function Admin() {
       if (!response.ok) throw new Error(text || 'supabase save failed');
     };
 
-    const bundleUrl = isDefault ? '/api/save-bundle' : `/api/save-bundle${qs({ slug })}`;
+    const bundleQuery = { channel: normalizedChannel };
+    if (!isDefault) bundleQuery.slug = slug;
+    const bundleUrl = `/api/save-bundle${qs(bundleQuery)}`;
     const attemptBundle = async () => {
       const response = await fetch(bundleUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ missions: suite, config: preparedConfig }),
+        body: JSON.stringify({
+          channel: normalizedChannel,
+          missions: suite,
+          config: preparedConfig,
+          devices: getDevices(),
+        }),
       });
       const text = await response.text();
       if (!response.ok) throw new Error(text || 'save failed');
     };
 
     const attemptLegacy = async () => {
-      const slugQuery = isDefault ? '' : qs({ slug });
-      const missionsUrl = isDefault ? '/api/save' : `/api/save${slugQuery}`;
-      const configUrl = isDefault ? '/api/save-config' : `/api/save-config${slugQuery}`;
+      const legacyQuery = { channel: normalizedChannel };
+      if (!isDefault) legacyQuery.slug = slug;
+      const missionsUrl = `/api/save${qs(legacyQuery)}`;
+      const configUrl = `/api/save-config${qs(legacyQuery)}`;
 
       const missionsRes = await fetch(missionsUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ missions: suite }),
+        body: JSON.stringify({
+          channel: normalizedChannel,
+          missions: suite,
+          devices: getDevices(),
+        }),
       });
       const missionsText = await missionsRes.text();
       if (!missionsRes.ok) throw new Error(missionsText || 'save missions failed');
@@ -2837,7 +2849,7 @@ export default function Admin() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ config: preparedConfig }),
+        body: JSON.stringify({ channel: normalizedChannel, config: preparedConfig }),
       });
       const configText = await configRes.text();
       if (!configRes.ok) throw new Error(configText || 'save config failed');

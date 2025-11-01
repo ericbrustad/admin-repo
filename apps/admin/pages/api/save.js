@@ -8,6 +8,25 @@ function normalizeSlug(value) {
   return slug;
 }
 
+function normalizeChannel(value, fallback = 'draft') {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const c = String(raw ?? fallback ?? 'draft').trim().toLowerCase();
+  return c === 'published' ? 'published' : 'draft';
+}
+
+function rewriteDraftToPublished(obj) {
+  try {
+    const s = JSON.stringify(obj);
+    const out = s
+      .replaceAll('/draft/mediapool/', '/published/mediapool/')
+      .replaceAll('draft/mediapool/', 'published/mediapool/')
+      .replaceAll('mediapool/draft/', 'published/mediapool/');
+    return JSON.parse(out);
+  } catch {
+    return obj;
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -22,9 +41,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { slug: querySlug } = req.query || {};
+    const { slug: querySlug, channel: queryChannel } = req.query || {};
     const {
       slug: bodySlug,
+      channel: bodyChannel,
       missions: missionsInput,
       config: configInput,
       devices: devicesInput,
@@ -35,19 +55,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Missing slug' });
     }
 
-    const config = configInput || {};
-    const missions = Array.isArray(missionsInput)
+    const channel = normalizeChannel(bodyChannel || queryChannel);
+
+    const rawConfig = configInput || {};
+    const config = channel === 'published'
+      ? rewriteDraftToPublished(rawConfig)
+      : rawConfig;
+    const rawMissions = Array.isArray(missionsInput)
       ? missionsInput
       : Array.isArray(missionsInput?.missions)
         ? missionsInput.missions
         : [];
-    const devices = Array.isArray(devicesInput)
+    const missions = channel === 'published'
+      ? rewriteDraftToPublished(rawMissions)
+      : rawMissions;
+    const rawDevices = Array.isArray(devicesInput)
       ? devicesInput
       : Array.isArray(config?.devices)
         ? config.devices
         : Array.isArray(config?.powerups)
           ? config.powerups
           : [];
+    const devices = channel === 'published'
+      ? rewriteDraftToPublished(rawDevices)
+      : rawDevices;
     const powerups = Array.isArray(config?.powerups) ? config.powerups : devices;
 
     const gameMeta = config?.game ?? {};
@@ -61,7 +92,7 @@ export default async function handler(req, res) {
 
     const gameResult = await upsertReturning(supabase, 'games', {
       slug,
-      channel: 'draft',
+      channel,
       title: gameMeta?.title || slug,
       type: gameMeta?.type || null,
       cover_image: gameMeta?.coverImage || null,
@@ -75,7 +106,7 @@ export default async function handler(req, res) {
       short_description: gameMeta?.shortDescription || null,
       long_description: gameMeta?.longDescription || null,
       tags,
-      status: 'draft',
+      status: channel === 'published' ? 'published' : 'draft',
       updated_at: now,
     }, { onConflict: 'slug,channel' });
 
@@ -84,7 +115,7 @@ export default async function handler(req, res) {
 
     const missionPayload = {
       game_slug: slug,
-      channel: 'draft',
+      channel,
       items: missions,
       updated_at: now,
     };
@@ -92,7 +123,7 @@ export default async function handler(req, res) {
 
     const devicePayload = {
       game_slug: slug,
-      channel: 'draft',
+      channel,
       items: devices,
       updated_at: now,
     };
@@ -100,7 +131,7 @@ export default async function handler(req, res) {
 
     const powerupPayload = {
       game_slug: slug,
-      channel: 'draft',
+      channel,
       items: powerups,
       updated_at: now,
     };
@@ -120,7 +151,7 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ ok: true, slug, updated_at: now });
+    return res.status(200).json({ ok: true, slug, channel, updated_at: now });
   } catch (error) {
     return res.status(500).json({ ok: false, error: error?.message || 'Failed to save game data' });
   }
