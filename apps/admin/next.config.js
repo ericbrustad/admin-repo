@@ -6,6 +6,8 @@ const path = require('path');
 const nextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
+  // Show real file/line in prod stacks so we can pinpoint crashes
+  productionBrowserSourceMaps: true,
   env: {
     GAME_ENABLED: rawGameEnabled,
     NEXT_PUBLIC_GAME_ENABLED: rawGameEnabled,
