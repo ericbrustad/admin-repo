@@ -137,19 +137,9 @@ git apply --3way <<'PATCH'
 // CODEX NOTE: Installs the global bridge (for hiding legacy buttons).
 // No global Settings menu is rendered here.
 import '../styles/globals.css';
-import React, { useEffect } from 'react';
-import dynamic from 'next/dynamic';
+import React from 'react';
 import { useRouter } from 'next/router';
 import { installGlobalSettingsBridge } from '../lib/settingsBridge';
-
-// Load map engine on the client only to avoid SSR/hydration crashes
-const MapEngineProvider = dynamic(
-  () =>
-    import('../components/maps/EngineProvider').then(
-      (m) => m.MapEngineProvider || m.default
-    ),
-  { ssr: false }
-);
 
 function reportClient(err, info) {
   try {
@@ -235,9 +225,9 @@ class RootErrorBoundary extends React.Component {
 // Client-safe loader for the Map engine.
 // If importing the provider throws (e.g., circular import / TDZ), we log and fall back gracefully.
 function ClientMapProvider({ children }) {
-  const [Impl, setImpl] = useState(null);
+  const [Impl, setImpl] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
@@ -262,7 +252,7 @@ function ClientMapProvider({ children }) {
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
-  useEffect(() => {
+  React.useEffect(() => {
     let cleanup = () => {};
     try {
       cleanup = installGlobalSettingsBridge(router) || (() => {});
@@ -284,9 +274,6 @@ export default function App({ Component, pageProps }) {
       <ClientMapProvider>
         <Component {...pageProps} />
       </ClientMapProvider>
-      <MapEngineProvider>
-        <Component {...pageProps} />
-      </MapEngineProvider>
     </RootErrorBoundary>
   );
 }
