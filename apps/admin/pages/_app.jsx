@@ -1,3 +1,139 @@
+git apply --3way <<'PATCH'
+*** Begin Patch
+*** Update File: pages/_app.jsx
+@@
+-import '../styles/globals.css';
+-import React from 'react';
++import '../styles/globals.css';
++import React from 'react';
+ import { useRouter } from 'next/router';
+ import { installGlobalSettingsBridge } from '../lib/settingsBridge';
+@@
+   return (
+     <RootErrorBoundary>
+-      <ClientMapProvider>
++      <ClientMapProvider>
+         <Component {...pageProps} />
+-      </ClientMapProvider>
++      </ClientMapProvider>
+     </RootErrorBoundary>
+   );
+ }
++
++// --- Supabase request logger (client-only) ---
++// Captures: URL path, HTTP method, headers (redacted), and JSON body (when present).
++// Sends to console AND /api/client-errors so it shows up in Vercel function logs.
++function installSupabaseRequestLogger(projectUrl) {
++  if (typeof window === 'undefined' || !projectUrl) return () => {};
++  try {
++    const prefix = String(projectUrl).replace(/\/+$/, '');
++    const originalFetch = window.fetch.bind(window);
++
++    function headersToObject(hdrs) {
++      const out = {};
++      if (!hdrs) return out;
++      try {
++        if (hdrs instanceof Headers) {
++          hdrs.forEach((v, k) => (out[k] = v));
++        } else if (Array.isArray(hdrs)) {
++          for (const [k, v] of hdrs) out[k] = v;
++        } else if (typeof hdrs === 'object') {
++          Object.assign(out, hdrs);
++        }
++      } catch {}
++      return out;
++    }
++
++    function redactHeaders(h) {
++      const out = {};
++      for (const k of Object.keys(h)) {
++        const low = k.toLowerCase();
++        if (low === 'authorization' || low === 'apikey') out[k] = '[REDACTED]';
++        else out[k] = String(h[k]);
++      }
++      return out;
++    }
++
++    window.fetch = async (input, init = {}) => {
++      try {
++        const url = typeof input === 'string' ? input : input?.url || '';
++        const isSupabase = url && url.startsWith(prefix);
++        const method =
++          (init?.method ||
++            (typeof input === 'object' && input?.method) ||
++            'GET'
++          ).toUpperCase();
++
++        if (isSupabase && !url.includes('/api/client-errors')) {
++          // headers
++          const rawHeaders =
++            init?.headers ||
++            (typeof input === 'object' && input?.headers) ||
++            {};
++          const safeHeaders = redactHeaders(headersToObject(rawHeaders));
++
++          // body (best-effort)
++          let body = null;
++          if (init?.body) {
++            try {
++              body = JSON.parse(init.body);
++            } catch {
++              body = String(init.body);
++            }
++          }
++
++          const payload = {
++            kind: 'supabase-request',
++            url,
++            path: (() => {
++              try { return new URL(url).pathname; } catch { return url; }
++            })(),
++            method,
++            headers: safeHeaders,
++            body,
++          };
++
++          // Console
++          try {
++            // nice collapsed group
++            // eslint-disable-next-line no-console
++            console.groupCollapsed(`↗️ Supabase ${method} ${payload.path}`);
++            // eslint-disable-next-line no-console
++            console.log(payload);
++            // eslint-disable-next-line no-console
++            console.groupEnd();
++          } catch {}
++
++          // Ship to Vercel logs
++          try {
++            fetch('/api/client-errors', {
++              method: 'POST',
++              headers: { 'content-type': 'application/json' },
++              body: JSON.stringify(payload),
++            }).catch(() => {});
++          } catch {}
++        }
++      } catch {}
++      return originalFetch(input, init);
++    };
++
++    // cleanup
++    return () => {
++      try { window.fetch = originalFetch; } catch {}
++    };
++  } catch {
++    return () => {};
++  }
++}
++
++// Install the logger once on the client
++if (typeof window !== 'undefined') {
++  const SUPABASE_URL =
++    process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || '';
++  // Run after hydration
++  setTimeout(() => installSupabaseRequestLogger(SUPABASE_URL), 0);
++}
+
 // CODEX NOTE: Installs the global bridge (for hiding legacy buttons).
 // No global Settings menu is rendered here.
 import '../styles/globals.css';
