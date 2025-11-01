@@ -1,5 +1,4 @@
-// CODEX NOTE: Installs the global bridge (for hiding legacy buttons).
-// No global Settings menu is rendered here.
+// Global wiring for Admin app with crash capture + client-only map provider + Supabase request logging
 import '../styles/globals.css';
 import React from 'react';
 import { useRouter } from 'next/router';
