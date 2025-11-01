@@ -43,6 +43,33 @@ class RootErrorBoundary extends React.Component {
     reportClient(error, info);
   }
 
+  componentDidMount() {
+    // Capture filename/line from runtime error events too
+    this._onErr = (e) => {
+      try {
+        reportClient(e.error || e.message || 'window.error', {
+          from: 'window.error',
+          filename: e?.filename,
+          lineno: e?.lineno,
+          colno: e?.colno,
+        });
+      } catch {}
+    };
+    this._onRej = (e) => {
+      try {
+        const reason = e?.reason || 'unhandledrejection';
+        reportClient(reason, { from: 'unhandledrejection' });
+      } catch {}
+    };
+    window.addEventListener('error', this._onErr);
+    window.addEventListener('unhandledrejection', this._onRej);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('error', this._onErr);
+    window.removeEventListener('unhandledrejection', this._onRej);
+  }
+
   render() {
     if (this.state.error) {
       return (
@@ -69,6 +96,33 @@ class RootErrorBoundary extends React.Component {
   }
 }
 
+// Client-safe loader for the Map engine.
+// If importing the provider throws (e.g., circular import / TDZ), we log and fall back gracefully.
+function ClientMapProvider({ children }) {
+  const [Impl, setImpl] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mod = await import('../components/maps/EngineProvider');
+        const Cmp = mod.MapEngineProvider || mod.default || React.Fragment;
+        if (!cancelled) setImpl(() => Cmp);
+      } catch (err) {
+        console.error('[EngineProvider import failed]', err);
+        reportClient(err, { where: 'EngineProvider dynamic import' });
+        if (!cancelled) setImpl(() => React.Fragment); // fallback: render children directly
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const Provider = Impl || React.Fragment;
+  return <Provider>{children}</Provider>;
+}
+
 export default function App({ Component, pageProps }) {
   const router = useRouter();
 
@@ -91,6 +145,9 @@ export default function App({ Component, pageProps }) {
 
   return (
     <RootErrorBoundary>
+      <ClientMapProvider>
+        <Component {...pageProps} />
+      </ClientMapProvider>
       <MapEngineProvider>
         <Component {...pageProps} />
       </MapEngineProvider>
